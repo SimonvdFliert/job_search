@@ -1,11 +1,12 @@
 from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 from psycopg2.extras import Json, execute_values
-from .modules.database import get_cursor
-from .modules.settings import settings
-from .modules.embeddings import strip_html
-from .modules.sql_loader import load_sql
-
+from src.modules.database import get_cursor
+from src.modules.settings import settings
+from src.modules.embeddings import strip_html
+from src.modules.sql_loader import load_sql
+from datetime import datetime
+import numpy as np
 
 def _array_literal(vec: List[float]) -> str:
     return "{" + ",".join(f"{x:.6f}" for x in vec) + "}"
@@ -42,7 +43,9 @@ def upsert_jobs(rows: List[Dict[str, Any]]) -> int:
             desc_html,                   # 10 description_html
             desc_text,                   # 11 description_text
             r.get("tags") or [],         # 12 tags (text[])
-            Json(r.get("compensation")) if r.get("compensation") is not None else None,  # 13 compensation (jsonb)
+            Json(r.get("compensation")) if r.get("compensation") is not None else None,  # 13 compensation (jsonb).
+            True, #14 is active
+            updated_at := datetime.now(), # 15 updated_at (ts)
         ))
     if not values:
         return 0
@@ -56,18 +59,33 @@ _UPSERT_EMB = load_sql("upsert_embeddings.sql")
 
 def fetch_missing_embeddings(limit: int = 512) -> List[Tuple[str, str]]:
     with get_cursor() as cur:
+        # The new SQL query expects one parameter for the LIMIT clause
         cur.execute(_SELECT_MISSING, (limit,))
         rows = cur.fetchall()
-    return [(r["id"], r["description_text"]) for r in rows]
+    
+    # The return statement must match the columns from the new SQL query: 'id' and 'text_to_embed'
+    return [(r["id"], r['text_to_embed']) for r in rows]
 
 def upsert_embeddings(pairs: List[Tuple[str, List[float]]]) -> int:
     if not pairs:
         return 0
-    template = "(%s, %s, %s)"
-    values = [(job_id, settings.model.MODEL_NAME, f"{_array_literal(vec)}::vector({settings.model.EMBED_DIM})") for job_id, vec in pairs]
+    # for job_id, embedding in pairs:
+    #     print(f"Embedding for job_id {job_id}: {embedding[:5]}... (length: {len(embedding)})")
+
+
+    # template = "(%s, %s, %s)"
+    data_to_insert = [
+            (
+                job_id,
+                settings.model.MODEL_NAME,
+                embedding # This is the key change
+            )
+            for job_id, embedding in pairs
+        ]
+    upsert_sql = load_sql("upsert_embeddings.sql")
     with get_cursor() as cur:
-        execute_values(cur, _UPSERT_EMB, values, template=template)
-    return len(values)
+        execute_values(cur, upsert_sql, data_to_insert)
+        return cur.rowcount
 
 # ---------- SEARCH ----------
 _SEARCH_SEMANTIC = load_sql("search_semantic.sql")
@@ -75,12 +93,18 @@ _SEARCH_HYBRID = load_sql("search_hybrid.sql")
 
 def search_semantic(q_embed: List[float], top_k: int = 20, company: Optional[str] = None, q_loc: Optional[str] = None):
     params = (
-        f"{_array_literal(q_embed)}::vector({settings.model.EMBED_DIM})",
+        str(q_embed),  # Keep converting to string for now
         company, company,
         q_loc, q_loc,
         top_k,
     )
+    
     with get_cursor() as cur:
+        # --- ADD THIS DIAGNOSTIC LINE ---
+        print("--- QUERY SENT TO DB ---")
+        print(cur.mogrify(_SEARCH_SEMANTIC, params).decode())
+        print("--------------------------")
+        
         cur.execute(_SEARCH_SEMANTIC, params)
         return cur.fetchall()
 

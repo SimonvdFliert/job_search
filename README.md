@@ -17,3 +17,18 @@ Tech stack: Nuxt frontend, fastapi backend, embedded data for vector search
 LLM chat
 
 
+# Running postgres
+docker compose up
+
+# execing into the db
+// docker exec -it <container_name> psql -U <user> -d <db_name>
+docker exec -it job_search-db-1 psql -U route_admin -d jobsdb
+
+-- Check installed extensions
+\dx
+
+-- Check table creation
+\dt
+
+-- Check table structure
+\d items

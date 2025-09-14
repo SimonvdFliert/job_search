@@ -7,9 +7,8 @@ import html
 from typing import Any, Dict, Iterable, List, Optional
 from datetime import datetime
 import requests
-from modules.settings import settings
-
-from modules.settings import AI_RE
+from src.modules.settings import settings
+from src.modules.settings import AI_RE
 
 def parse_dt(s: Optional[str]) -> Optional[str]:
     """Parse many ISO-ish timestamps to ISO 8601 (UTC if possible). Return None if unknown."""
@@ -43,13 +42,22 @@ def dedupe_key(company: str, title: str, location: Optional[str], url: Optional[
 
 def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
+    print('orgs:', orgs)
     for org in orgs:
         if len(out) >= max_results:
+            print('reached max results:', max_results)
             break
+        print(f'fetching org: {org}')
+        request_headers = {
+            "User-Agent": settings.scrape.headers
+        }
+
         url = f"https://api.ashbyhq.com/posting-api/job-board/{org}"
         params = {"includeCompensation": "true"}
         try:
-            resp = requests.get(url, params=params, headers=settings.scrape.headers, timeout=settings.time_out)
+            print('requesting URL:', url, 'with params:', params)
+            resp = requests.get(url, params=params, headers=request_headers, timeout=settings.scrape.time_out)
+            print('response status code:', resp.status_code)
             resp.raise_for_status()
             data = resp.json() or {}
         except Exception as e:
@@ -63,8 +71,11 @@ def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> List[Dict[str, An
             or data.get("postings")
             or []
         )
+
+        # print('postings:', postings)
+
         for p in postings:
-            print("processing posting:", p)
+            # print("processing posting:", p)
             title = p.get("title") or p.get("jobTitle") or ""
             company = org
             # location variants
@@ -93,7 +104,7 @@ def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> List[Dict[str, An
                     "raw": p,
                 }
             )
-        time.sleep(settings.sleep_between_calls)
+        time.sleep(settings.scrape.sleep_between_calls)
     return out[:max_results]
 
 
@@ -106,8 +117,11 @@ def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> List[Dict[
             break
         url = f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
         params = {"content": "true"}
+        request_headers = {
+            "User-Agent": settings.scrape.headers
+        }
         try:
-            resp = requests.get(url, params=params, headers=settings.headers, timeout=settings.time_out)
+            resp = requests.get(url, params=params, headers=request_headers, timeout=settings.scrape.time_out)
             resp.raise_for_status()
             data = resp.json() or {}
         except Exception as e:
@@ -115,7 +129,7 @@ def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> List[Dict[
             continue
         jobs = data.get("jobs", [])
         for j in jobs:
-            print("processing greenhouse job:", j)
+            # print("processing greenhouse job:", j)
             title = j.get("title") or ""
             company = board
             loc_obj = j.get("location") or {}
@@ -139,37 +153,37 @@ def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> List[Dict[
                     "raw": j,
                 }
             )
-        time.sleep(settings.sleep_between_calls)
+        time.sleep(settings.scrape.sleep_between_calls)
     return out[:max_results]
 
 
-def normalize_and_dedupe(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    seen = set()
-    out: List[Dict[str, Any]] = []
-    for it in items:
-        company = (it.get("company") or "").strip()
-        title = (it.get("title") or "").strip()
-        loc = (it.get("locations") or [None])[0]
-        url = it.get("url")
-        key = dedupe_key(company, title, loc, url)
-        if key in seen:
-            continue
-        seen.add(key)
-        # Keep only normalized fields; leave raw for auditing
-        out.append(
-            {
-                "id": key,
-                "source": it.get("source"),
-                "source_id": it.get("source_id"),
-                "company": company,
-                "title": title,
-                "locations": it.get("locations") or [],
-                "remote": it.get("remote"),
-                "posted_at": it.get("posted_at"),
-                "url": url,
-                "description": it.get("description") or "",
-                "tags": it.get("tags") or [],
-                "source_payload": it.get("raw"),
-            }
-        )
-    return out
+# def normalize_and_dedupe(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    # seen = set()
+    # out: List[Dict[str, Any]] = []
+    # for it in items:
+    #     company = (it.get("company") or "").strip()
+    #     title = (it.get("title") or "").strip()
+    #     loc = (it.get("locations") or [None])[0]
+    #     url = it.get("url")
+    #     key = dedupe_key(company, title, loc, url)
+    #     if key in seen:
+    #         continue
+    #     seen.add(key)
+    #     # Keep only normalized fields; leave raw for auditing
+    #     out.append(
+    #         {
+    #             "id": key,
+    #             "source": it.get("source"),
+    #             "source_id": it.get("source_id"),
+    #             "company": company,
+    #             "title": title,
+    #             "locations": it.get("locations") or [],
+    #             "remote": it.get("remote"),
+    #             "posted_at": it.get("posted_at"),
+    #             "url": url,
+    #             "description": it.get("description") or "",
+    #             "tags": it.get("tags") or [],
+    #             "source_payload": it.get("raw"),
+    #         }
+    #     )
+    # return out
