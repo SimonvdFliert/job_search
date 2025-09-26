@@ -1,6 +1,6 @@
 <!-- components/PieChart.vue -->
 <template>
-  <div class="chart-container">
+  <div class="bg-card border">
     <client-only>
       <VChart 
         :option="chartOption" 
@@ -70,11 +70,14 @@ const chartOption = computed(() => {
 
   return {
     // ...chartTheme.value, // Spread theme first
-
+    backgroundColor: 'transparent', // IMPORTANT for pie charts!
     title: {
-      ...chartTheme.value.title,
+      // ...chartTheme.value.title,
       text: props.title || 'Distribution',
-      left: 'center'
+      left: 'center',
+      textStyle: {
+      color: chartTheme.value.textStyle.color // Use theme text color
+    }
     },
     tooltip: {
       ...chartTheme.value.tooltip,
@@ -113,6 +116,9 @@ const chartOption = computed(() => {
       },
       label: {
         show: chartData.length <= 8,  // Hide labels if too many items
+        lineStyle: {
+          color: chartTheme.value.textStyle.color // Theme the label lines
+        },
         formatter: (params: any) => {
           if (params.value < total * 0.03) return ''  // Hide tiny slices
           return `${params.name}\n${params.value}`
@@ -139,8 +145,6 @@ const chartOption = computed(() => {
 <style scoped>
 .chart-container {
   width: 100%;
-  background: white;
-  border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

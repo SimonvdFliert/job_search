@@ -1,21 +1,26 @@
 <template>
   <div class="min-h-screen md:grid md:grid-cols-12">
       <div class=" min-h-screen font-sans md:col-start-2 md:col-span-10">
-        <div class="container mx-auto px-4">
-          <h1 class="text-4xl font-bold mb-2 ">Statistics</h1>
-          <p class=" mb-8">
-            Placeholder.
-          </p>
+        <div class="container mx-auto px-4 mb-6">
+          <h1 class="text-4xl font-bold">Statistics</h1>
         </div>
-        <!-- <Cards />
-        <Cards />
-        <Cards />
-        <div> Small card of total active Job offerings (of the last 30 days)</div>
-        <div> Small card of most recent Job offerings</div>
-        <div> Small card of total companies with active Job offerings</div> -->
-
-
-
+        <div class="grid grid-cols-3 mb-5 mt-4"> 
+          <Cards 
+          label="Active Job Listings"
+          :value="stats_summary?.total_active_jobs || 0"
+          subtext="Last 30 days"
+          :trend="12"/>
+          <Cards 
+            label="Number of Companies"
+            :value="stats_summary?.total_active_companies || 0"
+            subtext="Last 30 days"
+            :trend="12"/>
+          <Cards 
+            label="Latest Job Posting"
+            :value="stats_summary?.latest_job_date || 'Unknown'"
+            subtext="Last 30 days"
+            :trend="12"/>
+        </div>
 
         <div v-if="error" class="text-red-600">{{ error }}</div>
         <LineChart v-else :data="jobsPerDay" />
@@ -67,7 +72,7 @@ import { ref, computed } from 'vue'
 
 const stats = useStatsStore()
 await stats.fetchStatistics() // runs on server for SSR, hydrates to client
-const { jobsPerDay, jobsPerLocation, topCompanies, companyOfferType, error } = storeToRefs(stats)
+const { jobsPerDay, jobsPerLocation, topCompanies, stats_summary, companyOfferType, error } = storeToRefs(stats)
 console.log('jobsPerLocation in statistics.vue:', jobsPerLocation.value);
 
 const colorMode = useColorMode()
@@ -77,16 +82,4 @@ console.log(colorMode.preference)
 </script>
 
 <style scoped>
-body {
-  background-color: #fff;
-  color: rgba(0,0,0,0.8);
-}
-.dark-mode body {
-  background-color: #091a28;
-  color: #ebf4f1;
-}
-.sepia-mode body {
-  background-color: #f1e7d0;
-  color: #433422;
-}
 </style>

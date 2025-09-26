@@ -80,7 +80,7 @@ const lineChartOptions = computed(() => ({
 </script>
 
 <template>
-    <div class="chart-section">
+    <div class="chart-section bg-card border mb-5">
         <client-only>
           <VChart 
             :option="lineChartOptions" 

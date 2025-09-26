@@ -1,6 +1,6 @@
 <!-- components/BarChart.vue -->
 <template>
-  <div class="chart-container dark:bg-gray-800">
+  <div class="bg-card border mb-5">
     <client-only>
       <VChart 
         :option="chartOption" 
