@@ -1,9 +1,9 @@
 <template>
   
-  <div class="bg-gray-900 min-h-screen text-white font-sans">
+  <div class="min-h-screen font-sans ">
     <div class="container mx-auto px-4">
-      <h1 class="text-4xl font-bold mb-2 text-emerald-400">Job Search</h1>
-      <p class="text-gray-400 mb-8">
+      <h1 class="text-4xl font-bold mb-2 mt-5">Job Search</h1>
+      <p class=" mb-8">
         Enter a query to find jobs using semantic search.
       </p>
 
@@ -13,12 +13,12 @@
           v-model="query"
           type="text"
           placeholder="e.g., Senior Python Engineer in Amsterdam"
-          class="w-full bg-gray-800 border-2 border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+          class="w-full rounded-lg px-4 py-3 focus:outline-none transition-colors"
         />
         <button
           type="submit"
           :disabled="isLoading"
-          class="bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          class=" font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary "
         >
           {{ isLoading ? "Searching..." : "Search" }}
         </button>
@@ -26,25 +26,25 @@
 
       <!-- Loading Spinner -->
        <div v-if="isLoading" class="flex justify-center items-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 "></div>
       </div>
 
       <!-- Results Area -->
       <div v-if="results && results.length > 0">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-300">
+        <h2 class="text-2xl font-semibold mb-4">
           Search Results ({{ results.length }})
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Loop through each result and display it as a card -->
-          <div v-for="result in results" :key="result.id" class="bg-gray-800 border border-gray-700 rounded-lg p-5 flex flex-col hover:border-emerald-500 transition-colors">
+          <div v-for="result in results" :key="result.id" class=" rounded-lg p-5 flex flex-col transition-colors bg-card">
             <div class="flex-grow">
-              <h3 class="text-xl font-bold text-emerald-400">{{ result.title }}</h3>
-              <p class="text-gray-400 font-semibold mb-2">{{ result.company }}</p>
+              <h3 class="text-xl font-bold text-card-header">{{ result.title }}</h3>
+              <p class="font-semibold mb-2 text-card-text">{{ result.company }}</p>
               <!-- <p class="text-gray-500 text-sm mb-4">{{ result.locations ? JSON.parse(result.locations).join(', ') : 'Location not specified' }}</p> -->
             </div>
             <div class="mt-auto flex justify-between items-center">
-               <a :href="result.url" target="_blank" class="text-emerald-500 hover:underline">View Job &rarr;</a>
-               <span class="text-xs font-mono bg-gray-700 text-gray-400 px-2 py-1 rounded">
+               <a :href="result.url" target="_blank" class="test-card-text hover:underline">View Job &rarr;</a>
+               <span class="text-xs font-mono px-2 py-1 rounded test-card-text">
                 {{ (result.cosine_sim * 100).toFixed(1) }}%
                </span>
             </div>
@@ -53,8 +53,8 @@
       </div>
       
       <!-- No Results Message -->
-      <div v-if="results && results.length === 0 && !isLoading" class="text-center py-10">
-        <p class="text-gray-500">No results found for your query.</p>
+      <div v-if="results && results.length === 0 && !isLoading" class="text-center py-10 test-card-text">
+        <p class="">No results found for your query.</p>
       </div>
 
        <!-- Error Message -->
@@ -105,6 +105,4 @@ const searchJobs = async () => {
 </script>
 
 <style>
-/* Using a CDN for Tailwind CSS */
-@import 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
 </style>

@@ -32,3 +32,7 @@ docker exec -it job_search-db-1 psql -U route_admin -d jobsdb
 
 -- Check table structure
 \d items
+
+
+# Running the tool
+uv run python -m src.main  api

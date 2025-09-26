@@ -67,7 +67,6 @@ const lineChartOptions = computed(() => ({
 
 <template>
     <div class="chart-section">
-        <h2>Line Chart</h2>
         <client-only>
           <VChart 
             :option="lineChartOptions" 

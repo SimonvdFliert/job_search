@@ -1,5 +1,88 @@
-@import "tailwindcss";
-@import "flowbite/src/themes/default";
-@plugin "flowbite/plugin";
-@source "../../node_modules/flowbite";
-@custom-variant dark (&:where(.dark, .dark *));
+/* ~/assets/css/main.css */
+@import 'flowbite';
+/* 1. Import Tailwind's layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light mode */
+:root {
+  /* Page base */
+  --color-page-bg: #843737;
+  
+  /* Navbar */
+  --color-navbar-bg: #1e105b;
+  --color-navbar-text: #292524;
+  --color-navbar-hover: #0D9488;
+  
+  /* Cards */
+  --color-card-bg: #FAFAF9;
+  --color-card-text: #292524;
+  --color-card-border: #E7E5E4;
+  --color-card-header: #1C1917;
+  
+  /* Sidebar */
+  --color-sidebar-bg: #F5F5F4;
+  --color-sidebar-text: #78716C;
+  --color-sidebar-active: #0D9488;
+  
+  /* Buttons */
+  --color-button-primary: #0D9488;
+  --color-button-secondary: #78716C;
+  --color-button-danger: #DC2626;
+  
+  /* Hero section */
+  --color-hero-bg: #F0FDF4;
+  --color-hero-text: #14532D;
+  
+  /* Footer */
+  --color-footer-bg: #1C1917;
+  --color-footer-text: #D6D3D1;
+  
+  /* Global accent */
+  --color-accent: #0D9488;
+}
+
+/* Dark mode */
+.dark {
+  /* Page base */
+  --color-page-bg: #0C0A09;
+  
+  /* Navbar */
+  --color-navbar-bg: #1C1917;
+  --color-navbar-text: #E7E5E4;
+  --color-navbar-hover: #14B8A6;
+  
+  /* Cards */
+  --color-card-bg: #292524;
+  --color-card-text: #E7E5E4;
+  --color-card-border: #44403C;
+  --color-card-header: #F5F5F4;
+  
+  /* Sidebar */
+  --color-sidebar-bg: #1C1917;
+  --color-sidebar-text: #A8A29E;
+  --color-sidebar-active: #14B8A6;
+  
+  /* Buttons (might stay the same or change) */
+  --color-button-primary: #14B8A6;
+  --color-button-secondary: #57534E;
+  --color-button-danger: #EF4444;
+  
+  /* Hero section */
+  --color-hero-bg: #14532D;
+  --color-hero-text: #D0FDE7;
+  
+  /* Footer */
+  --color-footer-bg: #0C0A09;
+  --color-footer-text: #A8A29E;
+  
+  /* Global accent */
+  --color-accent: #14B8A6;
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-page-bg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

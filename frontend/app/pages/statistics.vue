@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen md:grid md:grid-cols-12">
-      <div class="bg-gray-900 min-h-screen text-white font-sans md:col-start-2 md:col-span-10">
+      <div class=" min-h-screen font-sans md:col-start-2 md:col-span-10">
         <div class="container mx-auto px-4">
-          <h1 class="text-4xl font-bold mb-2 text-emerald-400">Statistics</h1>
-          <p class="text-gray-400 mb-8">
+          <h1 class="text-4xl font-bold mb-2 ">Statistics</h1>
+          <p class=" mb-8">
             Placeholder.
           </p>
         </div>
@@ -13,7 +13,10 @@
         <div> Small card of total active Job offerings (of the last 30 days)</div>
         <div> Small card of most recent Job offerings</div>
         <div> Small card of total companies with active Job offerings</div> -->
-      
+
+
+
+
         <div v-if="error" class="text-red-600">{{ error }}</div>
         <LineChart v-else :data="jobsPerDay" />
 
@@ -67,13 +70,23 @@ await stats.fetchStatistics() // runs on server for SSR, hydrates to client
 const { jobsPerDay, jobsPerLocation, topCompanies, companyOfferType, error } = storeToRefs(stats)
 console.log('jobsPerLocation in statistics.vue:', jobsPerLocation.value);
 
+const colorMode = useColorMode()
 
-
-
-
+console.log(colorMode.preference)
 
 </script>
 
 <style scoped>
-
+body {
+  background-color: #fff;
+  color: rgba(0,0,0,0.8);
+}
+.dark-mode body {
+  background-color: #091a28;
+  color: #ebf4f1;
+}
+.sepia-mode body {
+  background-color: #f1e7d0;
+  color: #433422;
+}
 </style>

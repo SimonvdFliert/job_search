@@ -1,6 +1,6 @@
 <!-- components/BarChart.vue -->
 <template>
-  <div class="chart-container">
+  <div class="chart-container dark:bg-gray-800">
     <client-only>
       <VChart 
         :option="chartOption" 
@@ -21,6 +21,9 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 // Register ECharts components
 use([CanvasRenderer, BarChart, TooltipComponent, TitleComponent, GridComponent, LegendComponent])
+//
+//const colorMode = useColorMode() // from @nuxtjs/color-mode
+//const theme = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
 
 interface BarData {
   name?: string
@@ -53,6 +56,7 @@ const chartOption = computed(() => {
     const otherData = props.data.map(item => item.other || 0)
 
     return {
+      //backgroundColor: '#1e293b', // chart background
       title: {
         text: props.title || 'Company Job Types',
         left: 'center'
@@ -118,6 +122,9 @@ const chartOption = computed(() => {
     const values = props.data.map(item => item.count || item.value || item.total || 0)
 
     return {
+    //backgroundColor: '#1e293b', // chart background
+    //textStyle: { color: '#f1f5f9' },
+ 
       title: {
         text: props.title || 'Top Companies',
         left: 'center'
@@ -137,9 +144,12 @@ const chartOption = computed(() => {
         containLabel: true
       },
       xAxis: {
+            axisLine: { lineStyle: { color: '#94a3b8' } },
+ 
         type: props.horizontal ? 'value' : 'category',
         data: props.horizontal ? undefined : labels,
         axisLabel: {
+          // color: '#e2e8f0',
           interval: 0,
           rotate: 45,
           fontSize: 10,
@@ -148,6 +158,8 @@ const chartOption = computed(() => {
         }
       },
       yAxis: {
+        // axisLine: { lineStyle: { color: '#94a3b8' } },
+        // splitLine: { lineStyle: { color: '#334155' } },
         type: props.horizontal ? 'category' : 'value',
         data: props.horizontal ? labels : undefined,
         axisLabel: props.horizontal ? {
