@@ -18,9 +18,11 @@ import { use } from 'echarts/core'
 import { PieChart } from 'echarts/charts'
 import { TooltipComponent, TitleComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { useChartTheme } from '~/composables/useChartTheme'
 
 // Register ECharts components
 use([CanvasRenderer, PieChart, TooltipComponent, TitleComponent, LegendComponent])
+const { chartTheme } = useChartTheme()
 
 interface PieData {
   name?: string
@@ -67,11 +69,15 @@ const chartOption = computed(() => {
   const total = chartData.reduce((sum, item) => sum + item.value, 0)
 
   return {
+    // ...chartTheme.value, // Spread theme first
+
     title: {
+      ...chartTheme.value.title,
       text: props.title || 'Distribution',
       left: 'center'
     },
     tooltip: {
+      ...chartTheme.value.tooltip,
       trigger: 'item',
       formatter: (params: any) => {
         const percentage = ((params.value / total) * 100).toFixed(1)
@@ -79,6 +85,7 @@ const chartOption = computed(() => {
       }
     },
     legend: props.showLegend ? {
+      ...chartTheme.value.legend,
       type: 'scroll',
       orient: 'vertical',
       right: 10,

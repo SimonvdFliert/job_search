@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useChartTheme } from '~/composables/useChartTheme'
 
 const props = defineProps<{ data: { name: string; value: number }[] }>()
 // Chart styling
 const chartStyle = { height: '400px', width: '100%' }
+const { chartTheme } = useChartTheme()
 
 // Process and sort the data
 const processedData = computed(() => {
@@ -21,7 +23,16 @@ const processedData = computed(() => {
 
 // Alternative: Line chart for better time series visualization
 const lineChartOptions = computed(() => ({
+  ...chartTheme.value, // Spread theme first
+
+  title: {
+        ...chartTheme.value.title,
+        text: 'Job Posts Over Time',
+        left: 'center'
+      },
+
   tooltip: {
+    ...chartTheme.value.tooltip,
     trigger: 'axis',
     formatter: (params) => {
       const date = params[0].axisValue
@@ -36,15 +47,18 @@ const lineChartOptions = computed(() => ({
     containLabel: true
   },
   xAxis: {
+    ...chartTheme.value.xAxis,
     type: 'category',
     data: processedData.value.postDates,
     boundaryGap: false,
     axisLabel: {
+      ...chartTheme.value.xAxis.axisLabel,
       rotate: 45,
       interval: 'auto'
     }
   },
   yAxis: {
+    ...chartTheme.value.yAxis,
     type: 'value',
     name: 'Post Count'
   },

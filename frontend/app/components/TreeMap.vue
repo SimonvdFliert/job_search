@@ -18,9 +18,11 @@ import { use } from 'echarts/core'
 import { TreemapChart } from 'echarts/charts'
 import { TooltipComponent, TitleComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { useChartTheme } from '~/composables/useChartTheme'
 
 // Register ECharts components
 use([CanvasRenderer, TreemapChart, TooltipComponent, TitleComponent])
+const { chartTheme } = useChartTheme()
 
 interface LocationData {
   location: string
@@ -41,7 +43,10 @@ const chartOption = computed(() => {
   }))
 
   return {
+    ...chartTheme.value, // Spread theme first
+
     title: {
+      ...chartTheme.value.title,
       text: props.title || 'Job Locations Distribution',
       left: 'center',
       textStyle: {
@@ -49,6 +54,7 @@ const chartOption = computed(() => {
       }
     },
     tooltip: {
+        ...chartTheme.value.tooltip,
       formatter: (params: any) => {
         return `${params.name}<br/>Jobs: ${params.value}`
       }

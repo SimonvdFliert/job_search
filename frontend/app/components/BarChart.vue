@@ -18,12 +18,14 @@ import { use } from 'echarts/core'
 import { BarChart } from 'echarts/charts'
 import { TooltipComponent, TitleComponent, GridComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { useChartTheme } from '~/composables/useChartTheme'
 
 // Register ECharts components
 use([CanvasRenderer, BarChart, TooltipComponent, TitleComponent, GridComponent, LegendComponent])
 //
 //const colorMode = useColorMode() // from @nuxtjs/color-mode
 //const theme = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
+const { chartTheme } = useChartTheme()
 
 interface BarData {
   name?: string
@@ -56,12 +58,16 @@ const chartOption = computed(() => {
     const otherData = props.data.map(item => item.other || 0)
 
     return {
-      //backgroundColor: '#1e293b', // chart background
+      ...chartTheme.value, // Spread theme first
+      
       title: {
+        ...chartTheme.value.title,
         text: props.title || 'Company Job Types',
         left: 'center'
       },
+      
       tooltip: {
+        ...chartTheme.value.tooltip,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
         formatter: (params: any) => {
@@ -75,10 +81,13 @@ const chartOption = computed(() => {
                   Total: ${total}`
         }
       },
+      
       legend: {
+        ...chartTheme.value.legend,
         data: ['Engineering', 'Other Roles'],
         bottom: 0
       },
+      
       grid: {
         left: '3%',
         right: '4%',
@@ -86,33 +95,39 @@ const chartOption = computed(() => {
         top: '15%',
         containLabel: true
       },
+      
       xAxis: {
+        ...chartTheme.value.xAxis,
         type: props.horizontal ? 'value' : 'category',
         data: props.horizontal ? undefined : companies,
         axisLabel: {
+          ...chartTheme.value.xAxis.axisLabel,
           interval: 0,
           rotate: 45,
           fontSize: 10
         }
       },
+      
       yAxis: {
+        ...chartTheme.value.yAxis,
         type: props.horizontal ? 'category' : 'value',
         data: props.horizontal ? companies : undefined
       },
+      
       series: [
         {
           name: 'Engineering',
           type: 'bar',
           stack: 'total',
           data: engineerData,
-          itemStyle: { color: '#5470c6' }
+          itemStyle: { color: '#5470c6' } // Keep your data colors
         },
         {
           name: 'Other Roles',
           type: 'bar',
           stack: 'total',
           data: otherData,
-          itemStyle: { color: '#91cc75' }
+          itemStyle: { color: '#91cc75' } // Keep your data colors
         }
       ]
     }
@@ -122,20 +137,23 @@ const chartOption = computed(() => {
     const values = props.data.map(item => item.count || item.value || item.total || 0)
 
     return {
-    //backgroundColor: '#1e293b', // chart background
-    //textStyle: { color: '#f1f5f9' },
- 
+      ...chartTheme.value, // Spread theme first
+      
       title: {
+        ...chartTheme.value.title,
         text: props.title || 'Top Companies',
         left: 'center'
       },
+      
       tooltip: {
+        ...chartTheme.value.tooltip,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
         formatter: (params: any) => {
           return `${params[0].name}<br/>Jobs: ${params[0].value}`
         }
       },
+      
       grid: {
         left: '3%',
         right: '4%',
@@ -143,13 +161,13 @@ const chartOption = computed(() => {
         top: '15%',
         containLabel: true
       },
+      
       xAxis: {
-            axisLine: { lineStyle: { color: '#94a3b8' } },
- 
+        ...chartTheme.value.xAxis,
         type: props.horizontal ? 'value' : 'category',
         data: props.horizontal ? undefined : labels,
         axisLabel: {
-          // color: '#e2e8f0',
+          ...chartTheme.value.xAxis.axisLabel,
           interval: 0,
           rotate: 45,
           fontSize: 10,
@@ -157,27 +175,30 @@ const chartOption = computed(() => {
           width: 80
         }
       },
+      
       yAxis: {
-        // axisLine: { lineStyle: { color: '#94a3b8' } },
-        // splitLine: { lineStyle: { color: '#334155' } },
+        ...chartTheme.value.yAxis,
         type: props.horizontal ? 'category' : 'value',
         data: props.horizontal ? labels : undefined,
         axisLabel: props.horizontal ? {
+          ...chartTheme.value.yAxis.axisLabel,
           overflow: 'truncate',
           width: 100
-        } : {}
+        } : chartTheme.value.yAxis.axisLabel
       },
+      
       series: [{
         type: 'bar',
         data: values,
         itemStyle: {
-          color: '#5470c6',
+          color: '#5470c6', // Keep your blue color
           borderRadius: [4, 4, 0, 0]
         },
         label: {
-          show: props.data.length <= 10,  // Only show labels if not too crowded
+          show: props.data.length <= 10,
           position: 'top',
-          formatter: '{c}'
+          formatter: '{c}',
+          color: chartTheme.value.textStyle.color // Theme the labels
         }
       }]
     }
@@ -188,7 +209,6 @@ const chartOption = computed(() => {
 <style scoped>
 .chart-container {
   width: 100%;
-  background: white;
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
