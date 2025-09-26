@@ -13,10 +13,7 @@ from starlette.middleware.cors import CORSMiddleware
 from collections import Counter, defaultdict
 from datetime import date
 from typing import Any, Dict, Iterable, List, Set, Tuple
-import zoneinfo
 from datetime import datetime
-
-# TZ = zoneinfo.ZoneInfo()
 
 app = FastAPI(title="Jobs API")
 app.add_middleware(
@@ -79,7 +76,6 @@ def statistics_cte(top_n_companies: int = 10):
     """
 
     company_counts = Counter()
-
 
     with get_cursor() as cur:
         cur.execute(f"""
@@ -148,7 +144,7 @@ def statistics_cte(top_n_companies: int = 10):
                 (SELECT jsonb_agg(jpc ORDER BY jpc.count DESC) FROM jobs_per_country jpc) AS jobs_per_country,
                 (SELECT jsonb_agg(tc) FROM top_companies tc) AS top_companies,
                 (SELECT jsonb_agg(cot) FROM company_offer_type cot) AS company_offer_type,
-                (SELECT row_to_json(ss) FROM stats_summary ss) AS summary
+                (SELECT row_to_json(ss) FROM stats_summary ss) AS stats_summary
         """)
         result = cur.fetchone()
 
@@ -157,7 +153,7 @@ def statistics_cte(top_n_companies: int = 10):
             # "jobs_per_country": result["jobs_per_country"] or [],
             "top_companies": result["top_companies"] or [],
             "company_offer_type": result["company_offer_type"] or [],
-            "stats_summary": result.get("summary") or {}
+            "stats_summary": result.get("stats_summary") or {}
             }
         
         if result["jobs_per_country"]:

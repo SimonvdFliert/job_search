@@ -2,8 +2,8 @@
   
   <div class="min-h-screen font-sans ">
     <div class="container mx-auto px-4">
-      <h1 class="text-4xl font-bold mb-2 mt-5">Job Search</h1>
-      <p class=" mb-8">
+      <h1 class="text-4xl font-bold mb-2 mt-5 text-card-text">Job Search</h1>
+      <p class="text-card-text mb-8">
         Enter a query to find jobs using semantic search.
       </p>
 
@@ -18,7 +18,7 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class=" font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary "
+          class=" text-card-text  font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary "
         >
           {{ isLoading ? "Searching..." : "Search" }}
         </button>
@@ -43,8 +43,8 @@
               <!-- <p class="text-gray-500 text-sm mb-4">{{ result.locations ? JSON.parse(result.locations).join(', ') : 'Location not specified' }}</p> -->
             </div>
             <div class="mt-auto flex justify-between items-center">
-               <a :href="result.url" target="_blank" class="test-card-text hover:underline">View Job &rarr;</a>
-               <span class="text-xs font-mono px-2 py-1 rounded test-card-text">
+               <a :href="result.url" target="_blank" class=" hover:underline text-card-text">View Job &rarr;</a>
+               <span class="text-xs font-mono px-2 py-1 rounded text-card-text">
                 {{ (result.cosine_sim * 100).toFixed(1) }}%
                </span>
             </div>

@@ -5,80 +5,82 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light mode */
+/* Light mode - Clean and serene */
 :root {
-  /* Page base */
-  --color-page-bg: #843737;
+  /* Base surfaces */
+  --color-page-bg: #EAE7DC;        /* Warm off-white */
+  --color-navbar-bg: #D8C3A5;    /* White with slight transparency */
+  --color-card-bg: #D8C3A5;        /* Pure white for elevation */
+  --color-sidebar-bg: #F5F5F4;     /* Slightly darker than page */
+  --color-footer-bg: #a6957c;      /* Dark contrast footer */
   
-  /* Navbar */
-  --color-navbar-bg: #1e105b;
-  --color-navbar-text: #292524;
-  --color-navbar-hover: #0D9488;
+  /* Text hierarchy */
+  --color-navbar-text: #292524;    /* Near black */
+  --color-card-text: #292524;      
+  --color-card-header: #1C1917;    /* Darker for emphasis */
+  --color-sidebar-text: #78716C;   /* Muted */
+  --color-footer-text: #292524;    /* Light on dark */
   
-  /* Cards */
-  --color-card-bg: #FAFAF9;
-  --color-card-text: #292524;
-  --color-card-border: #E7E5E4;
-  --color-card-header: #1C1917;
-  
-  /* Sidebar */
-  --color-sidebar-bg: #F5F5F4;
-  --color-sidebar-text: #78716C;
+  /* Interactive elements */
+  --color-navbar-hover: #0D9488;   /* Teal */
   --color-sidebar-active: #0D9488;
+  --color-accent: #0D9488;
+  --color-accent-hover: #0F766E;   /* Darker teal */
+  
+  /* Borders */
+  --color-card-border: #E7E5E4;    /* Subtle borders */
+  --color-border-light: #F5F5F4;   /* Very subtle */
+  --color-border-strong: #D6D3D1;  /* More visible */
   
   /* Buttons */
-  --color-button-primary: #0D9488;
+  --color-button-primary: #8E8D8A;
+  --color-button-primary-hover: #6f6e6a;
   --color-button-secondary: #78716C;
+  --color-button-secondary-hover: #57534E;
   --color-button-danger: #DC2626;
   
-  /* Hero section */
-  --color-hero-bg: #F0FDF4;
-  --color-hero-text: #14532D;
-  
-  /* Footer */
-  --color-footer-bg: #1C1917;
-  --color-footer-text: #D6D3D1;
-  
-  /* Global accent */
-  --color-accent: #0D9488;
+  /* Special sections */
+  --color-hero-bg: #F0FDF4;        /* Subtle green tint */
+  --color-hero-text: #14532D;      /* Dark green */
 }
 
-/* Dark mode */
+/* Dark mode - Cozy evening theme */
 .dark {
-  /* Page base */
-  --color-page-bg: #0C0A09;
+  /* Base surfaces */
+  --color-page-bg: #020617;        /* Near black */
+  --color-navbar-bg: #0F172A;      /* Slightly elevated */
+  --color-card-bg: #1E293B;        /* Elevated card */
+  --color-sidebar-bg: #1C1917;     
+  --color-footer-bg: #0F172A;      
   
-  /* Navbar */
-  --color-navbar-bg: #1C1917;
-  --color-navbar-text: #E7E5E4;
-  --color-navbar-hover: #14B8A6;
+  /* Text hierarchy */
+  --color-navbar-text: #E7E5E4;    /* Light gray */
+  --color-card-text: #E2E8F0;
+  --color-card-header: #FAFAF9;    /* Bright for headers */
+  --color-sidebar-text: #A8A29E;   /* Muted light */
+  --color-footer-text: #E2E8F0;
   
-  /* Cards */
-  --color-card-bg: #292524;
-  --color-card-text: #E7E5E4;
-  --color-card-border: #44403C;
-  --color-card-header: #F5F5F4;
-  
-  /* Sidebar */
-  --color-sidebar-bg: #1C1917;
-  --color-sidebar-text: #A8A29E;
+  /* Interactive elements */
+  --color-navbar-hover: #14B8A6;   /* Lighter teal in dark */
   --color-sidebar-active: #14B8A6;
+  --color-accent: #14B8A6;
+  --color-accent-hover: #2DD4BF;
   
-  /* Buttons (might stay the same or change) */
-  --color-button-primary: #14B8A6;
+  /* Borders */
+  --color-card-border: #44403C;    /* Subtle in dark */
+  --color-border-light: #292524;
+  --color-border-strong: #57534E;
+  
+  /* Buttons */
+  --color-button-primary: #1E293B;
+  --color-button-primary-hover: #9f275f;
   --color-button-secondary: #57534E;
+  --color-button-secondary-hover: #78716C;
   --color-button-danger: #EF4444;
   
-  /* Hero section */
-  --color-hero-bg: #14532D;
-  --color-hero-text: #D0FDE7;
-  
-  /* Footer */
-  --color-footer-bg: #0C0A09;
-  --color-footer-text: #A8A29E;
-  
-  /* Global accent */
-  --color-accent: #14B8A6;
+  /* Special sections */
+  --color-hero-bg: #14532D;        /* Dark green */
+  --color-hero-text: #D0FDE7;      /* Light green */
 }
 
 /* Base styles */
