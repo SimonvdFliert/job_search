@@ -1,1 +1,92 @@
-@import "tailwindcss";
+/* ~/assets/css/main.css */
+@import 'flowbite';
+/* 1. Import Tailwind's layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light mode - Clean and serene */
+:root {
+  /* Base surfaces */
+  --color-page-bg: #EAE7DC;        /* Warm off-white */
+  --color-navbar-bg: #D8C3A5;    /* White with slight transparency */
+  --color-card-bg: #D8C3A5;        /* Pure white for elevation */
+  --color-sidebar-bg: #F5F5F4;     /* Slightly darker than page */
+  --color-footer-bg: #a6957c;      /* Dark contrast footer */
+  
+  /* Text hierarchy */
+  --color-navbar-text: #292524;    /* Near black */
+  --color-card-text: #292524;      
+  --color-card-header: #1C1917;    /* Darker for emphasis */
+  --color-sidebar-text: #78716C;   /* Muted */
+  --color-footer-text: #292524;    /* Light on dark */
+  
+  /* Interactive elements */
+  --color-navbar-hover: #0D9488;   /* Teal */
+  --color-card-hover: #0D9488;     /* Slightly darker card on hover */
+  --color-sidebar-active: #0D9488;
+  --color-accent: #0D9488;
+  --color-accent-hover: #0F766E;   /* Darker teal */
+  
+  /* Borders */
+  --color-card-border: #E7E5E4;    /* Subtle borders */
+  --color-border-light: #F5F5F4;   /* Very subtle */
+  --color-border-strong: #D6D3D1;  /* More visible */
+  
+  /* Buttons */
+  --color-button-primary: #D8C3A5;
+  --color-button-primary-hover: #0D9488;
+  --color-button-secondary: #78716C;
+  --color-button-secondary-hover: #57534E;
+  --color-button-danger: #DC2626;
+  
+  /* Special sections */
+  --color-hero-bg: #F0FDF4;        /* Subtle green tint */
+  --color-hero-text: #14532D;      /* Dark green */
+}
+
+/* Dark mode - Cozy evening theme */
+.dark {
+  /* Base surfaces */
+  --color-page-bg: #020617;        /* Near black */
+  --color-navbar-bg: #0F172A;      /* Slightly elevated */
+  --color-card-bg: #1E293B;        /* Elevated card */
+  --color-sidebar-bg: #1C1917;     
+  --color-footer-bg: #0F172A;      
+  
+  /* Text hierarchy */
+  --color-navbar-text: #E7E5E4;    /* Light gray */
+  --color-card-text: #E2E8F0;
+  --color-card-header: #FAFAF9;    /* Bright for headers */
+  --color-sidebar-text: #A8A29E;   /* Muted light */
+  --color-footer-text: #E2E8F0;
+  
+  /* Interactive elements */
+  --color-navbar-hover: #14B8A6;   /* Lighter teal in dark */
+  --color-card-hover: #14B8A6;   /* Slightly lighter card on hover */
+  --color-sidebar-active: #14B8A6;
+  --color-accent: #14B8A6;
+  --color-accent-hover: #2DD4BF;
+  
+  /* Borders */
+  --color-card-border: #44403C;    /* Subtle in dark */
+  --color-border-light: #292524;
+  --color-border-strong: #57534E;
+  
+  /* Buttons */
+  --color-button-primary: #1E293B;
+  --color-button-primary-hover: #14B8A6;
+  --color-button-secondary: #57534E;
+  --color-button-secondary-hover: #78716C;
+  --color-button-danger: #EF4444;
+  
+  /* Special sections */
+  --color-hero-bg: #14532D;        /* Dark green */
+  --color-hero-text: #D0FDE7;      /* Light green */
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-page-bg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

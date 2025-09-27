@@ -3,15 +3,15 @@
 </script>
 
 <template>
-    <footer class="sticky bottom-0 bg-gray-900">
+    <footer class="sticky bottom-0 bg-footer">
         <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2025 
-            <NuxtLink class="hover:underline" to="/">Job Search</NuxtLink>
+        <span class="text-sm sm:text-center text-footer-text">© 2025 
+            <NuxtLink class="hover:underline text-footer-text" to="/">Job Search</NuxtLink>
             . All Rights Reserved.
         </span>
-        <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+        <ul class="flex flex-wrap items-center mt-3 text-sm font-medium  sm:mt-0">
             <li>
-                <a href="#" class="hover:underline me-4 md:me-6">Fake Link</a>
+                <a href="#" class="hover:underline me-4 md:me-6 text-footer-text">Fake Link</a>
             </li>
         </ul>
         </div>
