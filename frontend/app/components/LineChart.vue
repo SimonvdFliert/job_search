@@ -72,7 +72,7 @@ const lineChartOptions = computed(() => ({
         opacity: 0.3
       },
       itemStyle: {
-        color: '#91cc75'
+        color: chartTheme.value.textStyle.color,
       }
     }
   ]

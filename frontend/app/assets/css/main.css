@@ -23,6 +23,7 @@
   
   /* Interactive elements */
   --color-navbar-hover: #0D9488;   /* Teal */
+  --color-card-hover: #0D9488;     /* Slightly darker card on hover */
   --color-sidebar-active: #0D9488;
   --color-accent: #0D9488;
   --color-accent-hover: #0F766E;   /* Darker teal */
@@ -33,8 +34,8 @@
   --color-border-strong: #D6D3D1;  /* More visible */
   
   /* Buttons */
-  --color-button-primary: #8E8D8A;
-  --color-button-primary-hover: #6f6e6a;
+  --color-button-primary: #D8C3A5;
+  --color-button-primary-hover: #0D9488;
   --color-button-secondary: #78716C;
   --color-button-secondary-hover: #57534E;
   --color-button-danger: #DC2626;
@@ -62,6 +63,7 @@
   
   /* Interactive elements */
   --color-navbar-hover: #14B8A6;   /* Lighter teal in dark */
+  --color-card-hover: #14B8A6;   /* Slightly lighter card on hover */
   --color-sidebar-active: #14B8A6;
   --color-accent: #14B8A6;
   --color-accent-hover: #2DD4BF;
@@ -73,7 +75,7 @@
   
   /* Buttons */
   --color-button-primary: #1E293B;
-  --color-button-primary-hover: #9f275f;
+  --color-button-primary-hover: #14B8A6;
   --color-button-secondary: #57534E;
   --color-button-secondary-hover: #78716C;
   --color-button-danger: #EF4444;

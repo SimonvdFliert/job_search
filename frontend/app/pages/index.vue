@@ -18,7 +18,7 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class=" text-card-text  font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary "
+          class=" text-card-text  font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary hover:bg-button-primary-hover"
         >
           {{ isLoading ? "Searching..." : "Search" }}
         </button>
@@ -36,7 +36,7 @@
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Loop through each result and display it as a card -->
-          <div v-for="result in results" :key="result.id" class=" rounded-lg p-5 flex flex-col transition-colors bg-card">
+          <div v-for="result in results" :key="result.id" class=" rounded-lg p-5 flex flex-col transition-colors bg-card hover:bg-card-hover">
             <div class="flex-grow">
               <h3 class="text-xl font-bold text-card-header">{{ result.title }}</h3>
               <p class="font-semibold mb-2 text-card-text">{{ result.company }}</p>

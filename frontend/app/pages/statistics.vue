@@ -1,25 +1,20 @@
 <template>
   <div class="min-h-screen md:grid md:grid-cols-12">
       <div class=" min-h-screen font-sans md:col-start-2 md:col-span-10">
-        <div class="container mx-auto px-4 mb-6">
-          <h1 class="text-4xl font-bold">Statistics</h1>
-        </div>
-        <div class="grid grid-cols-3 mb-5 mt-4"> 
+
+        <div class="grid grid-cols-5 mb-5 mt-4 rounded"> 
           <Cards 
           label="Active Job Listings"
           :value="stats_summary?.total_active_jobs || 0"
-          subtext="Last 30 days"
-          :trend="12"/>
+          subtext="Last 30 days"/>
           <Cards 
             label="Number of Companies"
             :value="stats_summary?.total_active_companies || 0"
-            subtext="Last 30 days"
-            :trend="12"/>
+            subtext="Last 30 days"/>
           <Cards 
             label="Latest Job Posting"
             :value="stats_summary?.latest_job_date || 'Unknown'"
-            subtext="Last 30 days"
-            :trend="12"/>
+            subtext="Last 30 days"/>
         </div>
 
         <div v-if="error" class="text-red-600">{{ error }}</div>
@@ -29,7 +24,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <TreeMap :data="jobsPerLocation" />
 
-          <!-- Pie chart for location distribution -->
+          <!-- Pie chart for location distribution
           <div class="chart-section">
             <PieChart
               v-if="jobsPerLocation.length > 0"
@@ -38,18 +33,7 @@
               :max-items="8"
               :donut="true"
             />
-          </div>
-
-          <div class="chart-section ">
-            <BarChart 
-              v-if="topCompanies.length > 0"
-              :data="topCompanies"
-              title="Top Hiring Companies"
-              :horizontal="false"
-            />
-          </div>
-
-
+          </div> -->
           <div class="chart-section full-width">
             <BarChart
               v-if="companyOfferType.length > 0"
@@ -59,7 +43,14 @@
               height="500px"
             />
           </div>
-
+          <div class="chart-section full-width ">
+            <BarChart 
+              v-if="topCompanies.length > 0"
+              :data="topCompanies"
+              title="Top Hiring Companies"
+              :horizontal="false"
+            />
+          </div>
         </div>
       </div>
 

@@ -49,6 +49,7 @@ const props = withDefaults(defineProps<{
 
 const chartOption = computed(() => {
   // Prepare data
+
   let chartData = props.data.map(item => ({
     name: item.name || item.location || item.company || '',
     value: item.count || item.value || item.total || 0
@@ -76,8 +77,10 @@ const chartOption = computed(() => {
       text: props.title || 'Distribution',
       left: 'center',
       textStyle: {
-      color: chartTheme.value.textStyle.color // Use theme text color
-    }
+        color: chartTheme.value.textStyle.color,
+        fontSize: 16,
+        fontWeight: 500
+      }
     },
     tooltip: {
       ...chartTheme.value.tooltip,

@@ -43,22 +43,22 @@ const chartOption = computed(() => {
   }))
 
   return {
-    ...chartTheme.value, // Spread theme first
+    // ...chartTheme.value, // Spread theme first
 
     title: {
       ...chartTheme.value.title,
-      text: props.title || 'Job Locations Distribution',
+      // text: props.title || 'Job Locations Distribution',
       left: 'center',
       textStyle: {
-        fontSize: 20
+        fontSize: 20,
       }
     },
-    tooltip: {
-        ...chartTheme.value.tooltip,
-      formatter: (params: any) => {
-        return `${params.name}<br/>Jobs: ${params.value}`
-      }
-    },
+    // tooltip: {
+    //     ...chartTheme.value.tooltip,
+    //   formatter: (params: any) => {
+    //     return `${params.name}<br/>Jobs: ${params.value}`
+    //   }
+    // },
     series: [{
       type: 'treemap',
       data: treemapData,
@@ -78,7 +78,8 @@ const chartOption = computed(() => {
           }
           return params.name
         },
-        fontSize: 12
+        fontSize: 12,
+        color: '#000000',
       },
       itemStyle: {
         borderColor: '#fff',
@@ -95,8 +96,5 @@ const chartOption = computed(() => {
 </script>
 
 <style scoped>
-.treemap-container {
-  width: 100%;
-  min-height: 500px;
-}
+
 </style>

@@ -1,11 +1,11 @@
 <template>
-    <div class="max-w-sm rounded overflow-hidden shadow-lg bg-card rounded">
+    <div class="max-w-sm rounded-xl overflow-hidden shadow-lg bg-card">
         <div class="flex items-start justify-between m-2 pl-2">
             <div>
-                    <p class="text-card-header text-sm font-medium">
+                    <p class="text-card-header text-2xl font-bold">
                     {{ label }}
                     </p>
-                    <p class="text-card-text text-2xl font-bold mt-1">
+                    <p class="text-card-hover text-2xl font-bold mt-1">
                     {{ formattedValue }}
                     </p>
                     <p v-if="subtext" class="text-card-text text-s mt-2">

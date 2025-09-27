@@ -6,16 +6,16 @@ export const useChartTheme = () => {
     
     return {
       // Text colors from your CSS variables
-      textColor: isDark ? '#000000' : '#000000',
-      mutedTextColor: isDark ? '#000000' : '#000000',
+      textColor: isDark ? '#FFFFFF' : '#000000',
+      mutedTextColor: isDark ? '#FFFFFF' : '#000000',
       
       // Lines and borders
-      axisLineColor: isDark ? '#000000' : '#000000',
-      splitLineColor: isDark ? '#000000' : '#000000',
+      axisLineColor: isDark ? '#FFFFFF' : '#000000',
+      splitLineColor: isDark ? '#FFFFFF' : '#000000',
       
       // Tooltip
-      tooltipBg: isDark ? '#000000' : '#000000',
-      tooltipBorder: isDark ? '#000000' : '#000000',
+      tooltipBg: isDark ? '#000000' : '#FFFFFF',
+      tooltipBorder: isDark ? '#000000' : '#FFFFFF',
     }
   })
   
