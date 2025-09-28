@@ -4,13 +4,13 @@ import re
 import time
 import hashlib
 import html
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Iterable
 from datetime import datetime
 import requests
-from src.modules.settings import settings
-from src.modules.settings import AI_RE
+from src.settings import settings
+from src.settings import AI_RE
 
-def parse_dt(s: Optional[str]) -> Optional[str]:
+def parse_dt(s: str | None) -> str | None:
     """Parse many ISO-ish timestamps to ISO 8601 (UTC if possible). Return None if unknown."""
     if not s:
         return None
@@ -23,7 +23,7 @@ def parse_dt(s: Optional[str]) -> Optional[str]:
         return None
 
 
-def strip_html(text: Optional[str]) -> str:
+def strip_html(text: str | None) -> str:
     if not text:
         return ""
     # Remove HTML tags quickly; for production consider Bleach/BS4
@@ -36,12 +36,12 @@ def is_ai_role(title: str, description: str) -> bool:
     return bool(AI_RE.search(blob))
 
 
-def dedupe_key(company: str, title: str, location: Optional[str], url: Optional[str]) -> str:
+def dedupe_key(company: str, title: str, location: str | None, url: str | None) -> str:
     canonical = f"{(company or '').strip().lower()}|{(title or '').strip().lower()}|{(location or '').strip().lower()}|{(url or '').strip().lower()}"
     return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
 
-def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     print('orgs:', orgs)
     for org in orgs:
         if len(out) >= max_results:
@@ -72,10 +72,7 @@ def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> List[Dict[str, An
             or []
         )
 
-        # print('postings:', postings)
-
         for p in postings:
-            # print("processing posting:", p)
             title = p.get("title") or p.get("jobTitle") or ""
             company = org
             # location variants
@@ -110,8 +107,8 @@ def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> List[Dict[str, An
 
 # ---------------------- Source: Greenhouse (per board) ----------------------
 
-def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     for board in boards:
         if len(out) >= max_results:
             break
@@ -129,7 +126,6 @@ def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> List[Dict[
             continue
         jobs = data.get("jobs", [])
         for j in jobs:
-            # print("processing greenhouse job:", j)
             title = j.get("title") or ""
             company = board
             loc_obj = j.get("location") or {}

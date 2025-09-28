@@ -33,7 +33,7 @@ class ScraperSettings(BaseSettings):
     sleep_between_calls: float = Field(default=0.6)
     OUTPUT_PATH: str = str("sample_jobs.jsonl")
     # Scraper
-    ASHBY_ORGS: list[str] = Field(default_factory=lambda: ["openai"]) # add more
+    ASHBY_ORGS: list[str] = Field(default_factory=lambda: ["openai"])
     GREENHOUSE_BOARDS: list[str] = Field(default_factory=lambda: ["anthropic", "scaleai", "xai"])
     model_config = SettingsConfigDict(env_prefix="SCRAPE_", env_file=".env", env_file_encoding="utf-8")
 
@@ -50,6 +50,7 @@ class AppCoreSettings(BaseSettings):
     ENV: str = Field(default="dev")
     LOG_LEVEL: str = Field(default="INFO")
     model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env", env_file_encoding="utf-8")
+    DEBUG: bool = Field(default=True)
     
 class ModelSettings(BaseSettings):
     # Embeddings
