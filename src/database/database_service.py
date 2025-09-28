@@ -4,8 +4,8 @@ import psycopg2
 from psycopg2.pool import SimpleConnectionPool
 from psycopg2.extras import RealDictCursor
 from psycopg2 import sql as psql
-from .settings import settings
-from .sql_loader import load_sql
+from src.settings import settings
+from src.database.sql_loader import load_sql
 
 _pool: SimpleConnectionPool | None = None
 
@@ -46,12 +46,15 @@ def get_cursor():
 def ensure_database_exists() -> None:
     """Create DB if missing (works only if role has CREATEDB). Safe to call always."""
     try:
+        print("Checking if database exists...   settings.db.NAME =", settings.db.NAME)
         # First, try to connect to the target database. If it works, we're done.
         psycopg2.connect(dsn=_dsn(settings.db.NAME)).close()
-        return
+        print("Database exists.")
+        return True
     except psycopg2.OperationalError:
         # This is expected if the database doesn't exist yet.
-        pass
+        print("Database does not exist --- OPERATIONAL ERROR.")
+    
     except Exception as e:
         # Handle other potential exceptions
         print(f"An unexpected error occurred: {e}")

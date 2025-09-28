@@ -1,3 +1,4 @@
+_SQL_INSERT_INTO_DB = """
 INSERT INTO jobs (
   id, source, source_id, company, title, locations, remote, posted_at, url,
   description_html, description_text, tags, compensation, is_active, updated_at
@@ -17,3 +18,4 @@ ON CONFLICT (id) DO UPDATE SET
   compensation = EXCLUDED.compensation,
   is_active = TRUE,
   updated_at = now();
+"""
