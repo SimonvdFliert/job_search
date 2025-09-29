@@ -17,11 +17,11 @@ AI_KEYWORDS = [
 
 AI_RE = re.compile("|".join(AI_KEYWORDS), flags=re.I)
 
-ASHBY_ORGS = [
+ASHBY_COMPANIES = [
     "openai",
 ]
 
-GREENHOUSE_BOARDS = [
+GREENHOUSE_BOARDS_COMPANIES = [
     "anthropic",
     "scaleai",
     "xai",
@@ -34,7 +34,7 @@ GREENHOUSE_BOARDS = [
     "cerebras",
     "gitlab",
     "twitch",
-    
+
 ]
 
 class ScraperSettings(BaseSettings):
@@ -43,8 +43,8 @@ class ScraperSettings(BaseSettings):
     sleep_between_calls: float = Field(default=0.6)
     OUTPUT_PATH: str = str("sample_jobs.jsonl")
     # Scraper
-    ASHBY_ORGS: list[str] = Field(default_factory=lambda: ["openai"])
-    GREENHOUSE_BOARDS: list[str] = Field(default_factory=lambda: ["anthropic", "scaleai", "xai"])
+    ASHBY_ORGS: list[str] = Field(default_factory=lambda: ASHBY_COMPANIES)
+    GREENHOUSE_BOARDS: list[str] = Field(default_factory=lambda: GREENHOUSE_BOARDS_COMPANIES)
     model_config = SettingsConfigDict(env_prefix="SCRAPE_", env_file=".env", env_file_encoding="utf-8")
 
 class DBSettings(BaseSettings):

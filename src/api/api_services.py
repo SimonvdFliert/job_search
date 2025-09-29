@@ -27,6 +27,7 @@ def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
             raise ValueError(f"Unknown search mode: {mode}")
 
 def scrape_jobs() -> None:
+    print("Starting scraping jobs...")
     batch = []
     if settings.scrape.ASHBY_ORGS: batch += scraper_service.fetch_ashby(settings.scrape.ASHBY_ORGS)
     if settings.scrape.GREENHOUSE_BOARDS: batch += scraper_service.fetch_greenhouse(settings.scrape.GREENHOUSE_BOARDS)

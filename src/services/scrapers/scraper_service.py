@@ -40,13 +40,10 @@ def dedupe_key(company: str, title: str, location: str | None, url: str | None) 
     canonical = f"{(company or '').strip().lower()}|{(title or '').strip().lower()}|{(location or '').strip().lower()}|{(url or '').strip().lower()}"
     return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
 
-def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> list[dict[str, Any]]:
+def fetch_ashby(orgs: Iterable[str]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     print('orgs:', orgs)
     for org in orgs:
-        if len(out) >= max_results:
-            print('reached max results:', max_results)
-            break
         print(f'fetching org: {org}')
         request_headers = {
             "User-Agent": settings.scrape.headers
@@ -102,16 +99,16 @@ def fetch_ashby(orgs: Iterable[str], max_results: int = 50) -> list[dict[str, An
                 }
             )
         time.sleep(settings.scrape.sleep_between_calls)
-    return out[:max_results]
+    return out
 
 
 # ---------------------- Source: Greenhouse (per board) ----------------------
 
-def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> list[dict[str, Any]]:
+def fetch_greenhouse(boards: Iterable[str]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
+    print('greenhouse orgs:', boards)
+
     for board in boards:
-        if len(out) >= max_results:
-            break
         url = f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
         params = {"content": "true"}
         request_headers = {
@@ -150,7 +147,7 @@ def fetch_greenhouse(boards: Iterable[str], max_results: int = 50) -> list[dict[
                 }
             )
         time.sleep(settings.scrape.sleep_between_calls)
-    return out[:max_results]
+    return out
 
 
 # def normalize_and_dedupe(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

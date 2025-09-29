@@ -30,12 +30,12 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     return [v.tolist() for v in vecs]
 
 
-def fetch_missing_embeddings(limit: int = 512) -> list[tuple[str, str]]:
+def fetch_missing_embeddings() -> list[tuple[str, str]]:
     with database_service.get_cursor() as cur:
         # The new SQL query expects one parameter for the LIMIT clause
-        cur.execute(_SQL_SELECT_MISSING_EMBEDDINGS, (limit,))
+        cur.execute(_SQL_SELECT_MISSING_EMBEDDINGS)
         rows = cur.fetchall()
-    
+    print('fetched missing embeddings:', len(rows))
     # The return statement must match the columns from the new SQL query: 'id' and 'text_to_embed'
     return [(r["id"], r['text_to_embed']) for r in rows]
 
@@ -60,7 +60,7 @@ def insert_embeddings(pairs: list[tuple[str, list[float]]]) -> int:
 def embed_data():
     total = 0
     while True:
-        todo = fetch_missing_embeddings(limit=settings.model.BATCH_SIZE * 4)
+        todo = fetch_missing_embeddings()
         if not todo: break
         ids, texts = zip(*todo)
         vecs = embed_texts(list(texts))
