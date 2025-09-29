@@ -25,6 +25,16 @@ GREENHOUSE_BOARDS = [
     "anthropic",
     "scaleai",
     "xai",
+    "cohere",
+    "huggingface",
+    "databricks",
+    "mistralai",
+    "perplexity",
+    "deepmind",
+    "cerebras",
+    "gitlab",
+    "twitch",
+    
 ]
 
 class ScraperSettings(BaseSettings):
