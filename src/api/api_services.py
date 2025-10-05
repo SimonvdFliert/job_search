@@ -8,7 +8,6 @@ from src.services.scrapers import scraper_service
 from src.database import database_service
 from collections import Counter
 
-
 def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
     q = search_params.get("q", None)
     top_k = search_params.get("top_k", 20)
@@ -36,7 +35,7 @@ def scrape_jobs() -> None:
     print(f"ingested {n} rows")
 
 def get_job_by_id(job_id: str):
-    with database_service.get_cursor() as cur:
+    with database_service.get_db_context() as cur:
         cur.execute("SELECT * FROM jobs WHERE id = %s", (job_id,))
         row = cur.fetchone()
 
@@ -53,7 +52,7 @@ def get_statistics(top_n_companies: int = 10) -> dict:
     - company_offer_type: [{company, engineer, other}]
     - job_types: [{type, count}]
     """
-    with database_service.get_cursor() as cur:
+    with database_service.get_db_context() as cur:
         cur.execute(f"""
             WITH active_jobs AS (
                 SELECT

@@ -5,15 +5,22 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.16.5",
     "beautifulsoup4>=4.13.5",
     "commitizen>=4.8.4",
     "fastapi>=0.116.1",
+    "pgvector>=0.4.1",
     "psycopg2>=2.9.10",
-    "pydantic>=2.11.7",
+    "pwdlib[argon2]>=0.2.1",
+    "pydantic[email]>=2.11.7",
     "pydantic-settings>=2.10.1",
+    "pyjwt>=2.10.1",
     "python-dotenv>=1.1.1",
+    "python-multipart>=0.0.20",
     "requests>=2.32.5",
     "scrapy>=2.13.3",
     "sentence-transformers>=5.1.0",
     "uvicorn[standard]>=0.35.0",
+    "passlib>=1.7.4",
+    "python-jose>=3.5.0",
 ]

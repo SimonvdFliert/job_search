@@ -21,17 +21,17 @@ def strip_html(text: str | None) -> str:
 def get_model() -> SentenceTransformer:
     global _model
     if _model is None:
-        _model = SentenceTransformer(settings.model.MODEL_NAME)
+        _model = SentenceTransformer(settings.model_name)
     return _model
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     model = get_model()
-    vecs = model.encode(texts, batch_size=settings.model.BATCH_SIZE, normalize_embeddings=True)
+    vecs = model.encode(texts, batch_size=settings.model_batch_size, normalize_embeddings=True)
     return [v.tolist() for v in vecs]
 
 
 def fetch_missing_embeddings() -> list[tuple[str, str]]:
-    with database_service.get_cursor() as cur:
+    with database_service.get_db_context() as cur:
         # The new SQL query expects one parameter for the LIMIT clause
         cur.execute(_SQL_SELECT_MISSING_EMBEDDINGS)
         rows = cur.fetchall()
@@ -47,13 +47,13 @@ def insert_embeddings(pairs: list[tuple[str, list[float]]]) -> int:
     data_to_insert = [
             (
                 job_id,
-                settings.model.MODEL_NAME,
+                settings.model_name,
                 embedding # This is the key change
             )
             for job_id, embedding in pairs
         ]
 
-    with database_service.get_cursor() as cur:
+    with database_service.get_db_context() as cur:
         execute_values(cur, _SQL_UPSERT_EMBEDDINGS, data_to_insert)
         return cur.rowcount
     

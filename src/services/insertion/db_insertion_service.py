@@ -44,6 +44,6 @@ def insert_jobs_into_db(rows: list[dict[str, Any]]) -> int:
         ))
     if not values:
         return 0
-    with database_service.get_cursor() as cur:
+    with database_service.get_db_context() as cur:
         execute_values(cur, _SQL_INSERT_INTO_DB, values)
     return len(values)
