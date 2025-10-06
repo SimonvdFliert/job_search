@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
 from datetime import datetime
 
 class Token(BaseModel):
@@ -19,6 +19,14 @@ class UserCreate(UserBase):
     """Schema for user registration"""
     password: str  # Plain text password from user
 
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        if len(v) > 128:
+            raise ValueError('Password must be less than 128 characters')
+        return v
 
 class UserLogin(BaseModel):
     """Schema for user login"""

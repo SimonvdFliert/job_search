@@ -16,9 +16,8 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(user: UserCreate, db: Session = Depends(database_service.get_db)):
     """Register a new user"""
-    
     # Check if username already exists
-    db_user = crud.get_user_by_username(db, username=user.username)
+    db_user = crud.get_user_by_username(username=user.username, db=db)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -26,7 +25,7 @@ async def signup(user: UserCreate, db: Session = Depends(database_service.get_db
         )
     
     # Check if email already exists
-    db_user = crud.get_user_by_email(db, email=user.email)
+    db_user = crud.get_user_by_email(email=user.email, db=db)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -34,7 +33,7 @@ async def signup(user: UserCreate, db: Session = Depends(database_service.get_db
         )
     
     # Create new user
-    new_user = crud.create_user(db=db, user=user)
+    new_user = crud.create_user(user=user, db=db)
     return UserResponse.model_validate(new_user)
 
 
@@ -46,7 +45,7 @@ async def login(
     """Login and get access token"""
     
     # Authenticate user
-    user = crud.authenticate_user(db, form_data.username, form_data.password)
+    user = crud.authenticate_user(form_data.username, form_data.password, db=db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
