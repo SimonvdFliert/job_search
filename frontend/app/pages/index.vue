@@ -89,6 +89,21 @@ const results = ref(null);
 const isLoading = ref(false);
 const error = ref(null);
 
+definePageMeta({
+  middleware: 'auth'
+})
+
+const { user, canScrape, fetchUser } = useAuth()
+
+// Ensure we have fresh user data
+onMounted(async () => {
+  if (!user.value) {
+    await fetchUser()
+  }
+})
+
+
+
 const searchJobs = async () => {
   if (!query.value.trim()) {
     results.value = null;

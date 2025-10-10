@@ -7,7 +7,7 @@ from typing import Any, Annotated
 import src.api.api_services as api_svc
 from pydantic import BaseModel, EmailStr, ConfigDict
 from src.api.routers import auth_router
-from src.api.pydantic_models import UserResponse
+from src.api.pydantic_models import UserMeResponse
 from src.api import auth_services 
 
 
@@ -59,7 +59,7 @@ def statistics_cte(top_n_companies: int = 10):
 
 @app.get("/protected")
 async def protected_route(
-    current_user: Annotated[UserResponse, Depends(auth_services.get_current_active_user)]
+    current_user: Annotated[UserMeResponse, Depends(auth_services.get_current_active_user)]
 ):
     return {
         "message": f"Hello {current_user.username}!",

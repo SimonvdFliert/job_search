@@ -47,7 +47,7 @@
                   Remember me
                 </label>
               </div>
-              <NuxtLink to="/forgot-password" class="text-sm text-card-text hover:underline">
+              <NuxtLink to="/forgotPassword" class="text-sm text-card-text hover:underline">
                 Forgot password?
               </NuxtLink>
             </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-const { login } = useAuth()
+const { login, clearAuthState } = useAuth()
 
 const identifier = ref('')
 const password = ref('')
@@ -82,7 +82,9 @@ const rememberMe = ref(false)
 const errorMessage = ref('')
 const loading = ref(false)
 
-console.log('IN THE LOGIN PAGE')
+onMounted(() => {
+  clearAuthState()
+})
 
 const handleLogin = async () => {
   errorMessage.value = ''

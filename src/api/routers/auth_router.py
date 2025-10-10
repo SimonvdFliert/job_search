@@ -5,15 +5,16 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from src.database import database_service
-from src.api.pydantic_models import UserCreate, UserResponse, Token
+from src.api.pydantic_models import UserCreate, UserMeResponse, Token, UserPermissions
 from src.settings import settings
 import src.api.user_services as crud
 import src.api.auth_services as auth
+from pydantic import BaseModel, EmailStr
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
-@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/signup", response_model=UserMeResponse, status_code=status.HTTP_201_CREATED)
 async def signup(user: UserCreate, db: Session = Depends(database_service.get_db)):
     """Register a new user"""
     # Check if username already exists
@@ -34,7 +35,7 @@ async def signup(user: UserCreate, db: Session = Depends(database_service.get_db
     
     # Create new user
     new_user = crud.create_user(user=user, db=db)
-    return UserResponse.model_validate(new_user)
+    return UserMeResponse.model_validate(new_user)
 
 
 @router.post("/login", response_model=Token)
@@ -70,17 +71,27 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/me", response_model=UserResponse)
+
+
+def get_user_permissions(user: UserMeResponse) -> UserPermissions:
+    """Calculate user permissions based on roles"""
+    has_admin_role = any(role.name == "admin" for role in user.roles)
+    
+    return UserPermissions(
+        can_scrape=has_admin_role or user.is_superuser,
+        can_view_analytics=True,  # All users can view
+        can_manage_users=user.is_superuser,
+    )
+
+@router.get("/me", response_model=UserMeResponse)
 async def get_current_user_info(
-    current_user: Annotated[UserResponse, Depends(auth.get_current_active_user)]
+    current_user: Annotated[UserMeResponse, Depends(auth.get_current_active_user)]
 ):
-    """Get current user information"""
-    return current_user
-
-
-@router.post("/logout")
-async def logout():
-    """Logout (client should delete token)"""
-    # With JWT, logout is handled client-side by deleting the token
-    # Optionally implement token blacklist for server-side logout
-    return {"message": "Successfully logged out"}
+    """Get current authenticated user information"""
+    return UserMeResponse(
+        id=current_user.id,
+        username=current_user.username,
+        email=current_user.email,
+        full_name=current_user.full_name,
+        permissions=get_user_permissions(current_user)
+    )

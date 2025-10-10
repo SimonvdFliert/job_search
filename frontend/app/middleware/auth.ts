@@ -1,12 +1,12 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const { user, fetchUser, isAuthenticated } = useAuth()
+  const { user, fetchUser, isAuthenticated, token } = useAuth()
 
-  // If no user data but we have a token, fetch user
-  if (!user.value) {
+  // If we have a token but no user data, try to fetch it
+  if (token.value && !user.value) {
     await fetchUser()
   }
 
-  // Redirect to login if not authenticated
+  // If still not authenticated after trying to fetch, redirect to login
   if (!isAuthenticated.value) {
     return navigateTo('/login')
   }

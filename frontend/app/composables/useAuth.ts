@@ -4,13 +4,14 @@ interface LoginResponse {
 }
 
 interface User {
-  id: number
-  username: string
-  email: string
-  full_name: string
+  // id: number
+  // username: string
+  // email: string
+  // full_name: string
+  is_superuser: boolean
   permissions: {
     can_scrape: boolean
-    can_view_analytics: boolean
+    // can_view_analytics: boolean
     [key: string]: boolean
   }
 }
@@ -35,41 +36,65 @@ export const useAuth = () => {
   })
   
   const user = useState<User | null>('user', () => null)
+  console.log('user', user)
+    // Clear all auth state
+  const clearAuthState = () => {
+    console.log('🧹 Clearing auth state...')
+    token.value = null
+    user.value = null
+
+    if (process.client) {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('token_type')
+      sessionStorage.removeItem('access_token')
+      sessionStorage.removeItem('token_type')
+    }
+    console.log('✅ Auth state cleared')
+  }
+
+
 
   // Login
   const login = async (identifier: string, password: string, remember: boolean = false) => {
-    const formData = new URLSearchParams()
-    formData.append('username', identifier)
-    formData.append('password', password)
+    console.log('🔐 Starting login for:', identifier) 
+    clearAuthState()
 
-    const { data, error } = await useFetch<LoginResponse>(`${apiBase}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData.toString(),
-    })
+    try {
+      const formData = new URLSearchParams()
+      formData.append('username', identifier)
+      formData.append('password', password)
 
-    if (error.value) {
-      throw new Error(error.value.data?.detail || 'Login failed')
-    }
+      // Use $fetch instead of useFetch to avoid caching
+      const data = await $fetch<LoginResponse>(`${apiBase}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      })
 
-    if (data.value) {
-      console.log('data value', data.value)
+      console.log('✅ Login response received')
+
       // Store token
-      token.value = data.value.access_token
+      token.value = data.access_token
       
       if (process.client) {
         const storage = remember ? localStorage : sessionStorage
-        storage.setItem('access_token', data.value.access_token)
-        storage.setItem('token_type', data.value.token_type)
+        storage.setItem('access_token', data.access_token)
+        storage.setItem('token_type', data.token_type)
       }
       
-      // Fetch user data
+      // Fetch fresh user data for this token
       await fetchUser()
       
-      return data.value
+      console.log('✅ Login complete, user:', user.value)
+      
+      return data
+    } catch (error: any) {
+      console.error('❌ Login failed:', error)
+      throw new Error(error.data?.detail || 'Login failed')
     }
+
   }
   // Signup
   const signup = async (signupData: SignupData) => {
@@ -90,41 +115,37 @@ export const useAuth = () => {
 
   // Logout
   const logout = async () => {
-    token.value = null
-    user.value = null
-
+    console.log('👋 Logging out...')
+    clearAuthState()
     if (process.client) {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('token_type')
-      sessionStorage.removeItem('access_token')
-      sessionStorage.removeItem('token_type')
-    }
-
-    await navigateTo('/login')
+          window.location.href = '/login'
+    } else {
+          await navigateTo('/login')
+        }
   }
 
   // Fetch current user
   const fetchUser = async () => {
-    if (!token.value) return null
+    if (!token.value) {
+          console.log('⚠️ No token, skipping user fetch')
+          user.value = null
+          return null
+        }
 
     try {
-      const { data, error } = await useFetch<User>(`${apiBase}/auth/me`, {
+      // Use $fetch to avoid any caching issues
+      const data = await $fetch<User>(`${apiBase}/auth/me`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token.value}`,
         },
       })
-
-      if (error.value) {
-        // Token invalid, clear it
-        await logout()
-        return null
-      }
-
-      user.value = data.value
-      return data.value
-    } catch (err) {
-      await logout()
+      user.value = data
+      return data
+    } catch (error: any) {
+      console.error('Failed to fetch user:', error)
+      // Token is invalid, clear everything
+      clearAuthState()
       return null
     }
   }
@@ -153,5 +174,6 @@ export const useAuth = () => {
     isAuthenticated,
     canScrape,
     canViewAnalytics,
+    clearAuthState,
   }
 }

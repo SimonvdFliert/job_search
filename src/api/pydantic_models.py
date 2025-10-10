@@ -34,16 +34,29 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserResponse(UserBase):
-    """Schema for user responses (what API returns)"""
-    id: int
-    is_active: bool
-    is_superuser: bool
-    created_at: datetime
+# class UserResponse(UserBase):
+#     """Schema for user responses (what API returns)"""
+#     id: int
+#     is_active: bool
+#     is_superuser: bool
+#     created_at: datetime
     
-    model_config = ConfigDict(from_attributes=True)
+#     model_config = ConfigDict(from_attributes=True)
 
 
-class UserWithRoles(UserResponse):
-    """User response with role names"""
-    roles: list[str] = []
+# class UserWithRoles(UserResponse):
+#     """User response with role names"""
+#     roles: list[str] = []
+
+class UserPermissions(BaseModel):
+    can_scrape: bool
+    can_view_analytics: bool
+    can_manage_users: bool
+
+class UserMeResponse(BaseModel):
+    """Minimal user data for frontend display"""
+    id: int
+    username: str
+    email: EmailStr
+    full_name: str
+    permissions: UserPermissions
