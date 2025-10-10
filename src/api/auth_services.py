@@ -56,7 +56,9 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
     
-    user = crud.get_user_by_username(db, username=token_data.username)
+
+
+    user = crud.get_user_by_username(username=token_data.username, db=db)
     if user is None:
         raise credentials_exception
     
@@ -78,7 +80,7 @@ def require_role(required_role: str):
         current_user: Annotated[UserResponse, Depends(get_current_active_user)],
         db: Session = Depends(database_service.get_db)
     ):
-        user = crud.get_user_by_username(db, current_user.username)
+        user = crud.get_user_by_username(current_user.username, db)
         user_roles = [role.name for role in user.roles]
         
         if required_role not in user_roles and not user.is_superuser:

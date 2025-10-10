@@ -9,9 +9,9 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 from src.api.routers import auth_router
 from src.api.pydantic_models import UserResponse
 from src.api import auth_services 
+
+
 app = FastAPI(title="Jobs API")
-
-
 
 app.add_middleware(
     CORSMiddleware,

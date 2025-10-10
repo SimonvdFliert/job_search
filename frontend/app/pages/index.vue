@@ -23,6 +23,17 @@
           {{ isLoading ? "Searching..." : "Search" }}
         </button>
       </form>
+       <!-- Admin scraping section -->
+      <div v-if="canScrape" class="mb-8 p-6 bg-blue-50 rounded-lg">
+        <h2 class="text-xl font-semibold mb-2">Job Scraping</h2>
+        <button
+          @click="triggerScraping"
+          :disabled="scraping"
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+        >
+          {{ scraping ? 'Scraping...' : 'Trigger Scraping' }}
+        </button>
+      </div>
 
       <!-- Loading Spinner -->
        <div v-if="isLoading" class="flex justify-center items-center">
@@ -71,6 +82,7 @@
 
 <script setup>
 import { ref } from 'vue';
+const { public: { apiBase } } = useRuntimeConfig()
 
 const query = ref('');
 const results = ref(null);
@@ -88,7 +100,7 @@ const searchJobs = async () => {
   error.value = null;
 
   try {
-    const response = await fetch(`http://localhost:8000/search?q=${encodeURIComponent(query.value)}`);
+    const response = await fetch(`${apiBase}/search?q=${encodeURIComponent(query.value)}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

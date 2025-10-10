@@ -140,5 +140,6 @@ from typing import Literal
 def detect_login_type(identifier: str) -> Literal["email", "username"]:
     """Detect if identifier is an email or username."""
     # Simple email pattern check
+    print('identifier in the detect login type', identifier)
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return "email" if re.match(email_pattern, identifier) else "username"
