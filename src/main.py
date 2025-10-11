@@ -14,11 +14,11 @@ def main():
     
     # Start server
     port = int(os.getenv("PORT", "8000"))
-    print(f"🚀 Starting server on http://0.0.0.0:{port}")
+    print(f"🚀 Starting server on http://127.0.0.1:{port}")
     
     uvicorn.run(
         "src.api.api:app",
-        host="0.0.0.0",
+        host="127.0.0.1",
         port=port,
         reload=settings.app_debug
     )

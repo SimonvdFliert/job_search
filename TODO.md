@@ -11,13 +11,13 @@ Scope deployment
 - Hide signup button if logged in
 - Show signup button if not logged in
 - Add pagination in job search
-- add a password reset function
++ add a password reset function
 - add a password forgoten function in the backend
-- add a delete account
++ add a delete account
 - fix treemap
 - add pytests tests
-- add a simple settings page
-- connect changes of user to backend (change names, change password)
++ add a simple settings page
++ connect changes of user to backend (change names, change password)
 - perhaps take the latest stored data item and set the scraper to look from then to now
 - launch tool
 

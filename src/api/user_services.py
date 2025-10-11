@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from src.database.models import User, Role
+from src.database.models import User, Role, user_roles
 from src.api.pydantic_models import UserCreate
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHash
-
+from datetime import datetime
 
 class PasswordService:
     """Secure password hashing using Argon2."""
@@ -85,10 +85,18 @@ def get_user_by_email(email: str, db: Session) -> User | None:
     """Get user by email"""
     return db.query(User).filter(User.email == email).first()
 
-
 def get_user_by_id(user_id: int, db: Session) -> User | None:
     """Get user by ID"""
     return db.query(User).filter(User.id == user_id).first()
+
+def get_user_roles(user_id: int, db: Session):
+    specific_role = db.query(Role).join(
+        user_roles, user_roles.c.role_id == Role.id
+    ).filter(
+        user_roles.c.user_id == user_id
+    ).first()
+
+    return specific_role
 
 
 def create_user(user: UserCreate, db: Session) -> User:
@@ -117,6 +125,32 @@ def create_user(user: UserCreate, db: Session) -> User:
     return db_user
 
 
+def update_password(user_id: int, new_hashed_password: str, db: Session):
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        return None  # or raise an exception
+    
+    user.hashed_password = new_hashed_password
+    db.commit()
+    db.refresh(user)  # Refresh to get updated data
+    
+    return user
+
+def delete_user(user_id: int, db: Session):
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        return None  # or raise an exception
+    
+    user.is_active = False  # Add this field to your User model
+    user.deleted_at = datetime.now()
+    db.commit()
+    
+    return True
+
+
+
 def authenticate_user(identifier: str, password: str,  db: Session ) -> User | None:
     """Authenticate user with username and password"""
 
@@ -127,7 +161,7 @@ def authenticate_user(identifier: str, password: str,  db: Session ) -> User | N
     else:
         user = get_user_by_email(identifier, db)
 
-    if not user:
+    if not user or not user.is_active:
         return None
     if not password_service.verify_password(password, user.hashed_password):
         return None

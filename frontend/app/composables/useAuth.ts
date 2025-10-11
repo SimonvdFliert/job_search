@@ -5,9 +5,9 @@ interface LoginResponse {
 
 interface User {
   // id: number
-  // username: string
-  // email: string
-  // full_name: string
+  username: string
+  email: string
+  full_name: string
   is_superuser: boolean
   permissions: {
     can_scrape: boolean
@@ -36,7 +36,6 @@ export const useAuth = () => {
   })
   
   const user = useState<User | null>('user', () => null)
-  console.log('user', user)
     // Clear all auth state
   const clearAuthState = () => {
     console.log('🧹 Clearing auth state...')
@@ -113,6 +112,54 @@ export const useAuth = () => {
     return data.value
   }
 
+
+  const resetPassword = async (passwordData) => {
+    console.log('password data in reset Password', passwordData)
+    console.log('password data in reset Password value', passwordData.value)
+
+    const password_data = {
+      "current": passwordData.value.current,
+      "new": passwordData.value.new,
+    }
+
+    const { data, error } = await useFetch(`${apiBase}/auth/change_password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token.value}`,
+      },
+      body: JSON.stringify(password_data),
+    })
+
+    if (error.value) {
+      throw new Error(error.value.data?.detail || 'Signup failed')
+    }
+
+    return data.value
+  }
+
+  const deleteUser = async (deleteModalData) => {
+      const password_data = {
+        "password": deleteModalData.value.password,
+      }
+      const { data, error } = await useFetch(`${apiBase}/auth/delete_account`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
+        },
+        body: JSON.stringify(password_data)
+      })
+
+      if (error.value) {
+        throw new Error(error.value.data?.detail || 'Signup failed')
+      }
+
+      return data.value
+    }
+
+
+
   // Logout
   const logout = async () => {
     console.log('👋 Logging out...')
@@ -169,6 +216,8 @@ export const useAuth = () => {
     login,
     signup,
     logout,
+    resetPassword,
+    deleteUser,
     fetchUser,
     getAuthHeader,
     isAuthenticated,

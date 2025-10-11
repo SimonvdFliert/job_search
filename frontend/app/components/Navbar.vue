@@ -70,16 +70,6 @@
           Statistics
         </NuxtLink>
           <template v-if="isAuthenticated">
-
-            <!-- Admin-only link -->
-            <NuxtLink 
-              v-if="canScrape"
-              to="/admin" 
-              class="py-2 px-3 rounded-sm md:bg-transparent text-navbar-text hover:text-navbar-hover md:p-0"
-            >
-              Admin
-            </NuxtLink>
-
             <!-- User menu -->
             <div class="relative" ref="userMenuRef">
               <button 
