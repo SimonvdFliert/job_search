@@ -25,7 +25,7 @@ interface SignupData {
 
 export const useAuth = () => {
   const { public: { apiBase } } = useRuntimeConfig()
-
+  const { success, error } = useToast()
   // Reactive state
   const token = useState<string | null>('auth_token', () => {
     // Initialize from storage on client side
@@ -38,7 +38,6 @@ export const useAuth = () => {
   const user = useState<User | null>('user', () => null)
     // Clear all auth state
   const clearAuthState = () => {
-    console.log('🧹 Clearing auth state...')
     token.value = null
     user.value = null
 
@@ -48,14 +47,12 @@ export const useAuth = () => {
       sessionStorage.removeItem('access_token')
       sessionStorage.removeItem('token_type')
     }
-    console.log('✅ Auth state cleared')
   }
 
 
 
   // Login
   const login = async (identifier: string, password: string, remember: boolean = false) => {
-    console.log('🔐 Starting login for:', identifier) 
     clearAuthState()
 
     try {
@@ -72,8 +69,6 @@ export const useAuth = () => {
         body: formData.toString(),
       })
 
-      console.log('✅ Login response received')
-
       // Store token
       token.value = data.access_token
       
@@ -85,12 +80,10 @@ export const useAuth = () => {
       
       // Fetch fresh user data for this token
       await fetchUser()
-      
-      console.log('✅ Login complete, user:', user.value)
-      
+            
       return data
     } catch (error: any) {
-      console.error('❌ Login failed:', error)
+      error('Login Faield')
       throw new Error(error.data?.detail || 'Login failed')
     }
 
@@ -106,6 +99,7 @@ export const useAuth = () => {
     })
 
     if (error.value) {
+      error('Signup Failed')
       throw new Error(error.value.data?.detail || 'Signup failed')
     }
 
@@ -132,6 +126,7 @@ export const useAuth = () => {
     })
 
     if (error.value) {
+      error('Password Reset Failed')
       throw new Error(error.value.data?.detail || 'Signup failed')
     }
 
@@ -152,6 +147,7 @@ export const useAuth = () => {
       })
 
       if (error.value) {
+        error('Account Deletion Failed')
         throw new Error(error.value.data?.detail || 'Signup failed')
       }
 
@@ -162,7 +158,6 @@ export const useAuth = () => {
 
   // Logout
   const logout = async () => {
-    console.log('👋 Logging out...')
     clearAuthState()
     if (process.client) {
           window.location.href = '/login'
@@ -174,7 +169,6 @@ export const useAuth = () => {
   // Fetch current user
   const fetchUser = async () => {
     if (!token.value) {
-          console.log('⚠️ No token, skipping user fetch')
           user.value = null
           return null
         }
@@ -190,8 +184,8 @@ export const useAuth = () => {
       user.value = data
       return data
     } catch (error: any) {
-      console.error('Failed to fetch user:', error)
       // Token is invalid, clear everything
+      error('Session Expired. Please log in again.')
       clearAuthState()
       return null
     }

@@ -225,6 +225,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+const { success, error } = useToast()
 
 definePageMeta({
   middleware: 'auth'
@@ -267,15 +268,15 @@ const deleteModalData = ref({
 
 const handleResetPassword = async () => {
   if (passwordData.value.new !== passwordData.value.confirm) {
-    alert('New passwords do not match!')
+    error('New passwords do not match!')
     return
   }
   
   // Add your password reset API call here
   console.log('Resetting password...')
   await resetPassword(passwordData)
-  alert('Password reset successfully!')
-
+  // alert('Password reset successfully!')
+  success('Password reset successfully!')
   // Clear form
   passwordData.value = {
     current: '',
@@ -289,14 +290,16 @@ const showDeleteModal = ref(false)
 
 const handleDeleteAccount = async () => {
   if (deleteModalData.value.password !== deleteModalData.value.confirmation) {
-    alert('New passwords do not match!')
+    // alert('New passwords do not match!')
+    error('Passwords do not match!')
     return
   }
   // Add your delete account API call here
   console.log('Deleting account...')
   deleteUser(deleteModalData)
   logout()
-  alert('Account deleted!')
+  // alert('Account deleted!')
+  success('Account deleted!')
   showDeleteModal.value = false
   
   // Redirect to login or home page
@@ -322,10 +325,12 @@ const handleScrapeData = async () => {
       })
       scrapeMessage.value = 'Data scraping completed successfully!'
       scrapeSuccess.value = true
+      success('Data scraping completed successfully!')
     }
   catch (error) {
     scrapeMessage.value = 'Failed to scrape data. Please try again.'
     scrapeSuccess.value = false
+    error('Failed to scrape data. Please try again.')
   } finally {
     isScraping.value = false
   }

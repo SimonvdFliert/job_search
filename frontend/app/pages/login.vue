@@ -75,6 +75,7 @@
 
 <script setup lang="ts">
 const { login, clearAuthState } = useAuth()
+const { success, error } = useToast()
 
 const identifier = ref('')
 const password = ref('')
@@ -86,6 +87,7 @@ onMounted(() => {
   clearAuthState()
 })
 
+
 const handleLogin = async () => {
   errorMessage.value = ''
   loading.value = true
@@ -93,8 +95,10 @@ const handleLogin = async () => {
   try {
     await login(identifier.value, password.value, rememberMe.value)
     await navigateTo('/')
+    success('Logged in successfully!')
   } catch (err: any) {
     errorMessage.value = err.message || 'Login failed'
+    error('Login failed. Please try again.')
   } finally {
     loading.value = false
   }

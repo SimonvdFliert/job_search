@@ -151,6 +151,7 @@
 
 <script setup lang="ts">
 const { signup } = useAuth()
+const { success, error } = useToast()
 
 const formData = reactive({
   username: '',
@@ -172,26 +173,31 @@ const handleSignup = async () => {
   // Client-side validation
   if (!formData.username || !formData.email || !formData.password || !confirmPassword.value || !formData.full_name) {
     errorMessage.value = 'Please fill in all fields.'
+    error(errorMessage.value)
     return
   }
 
   if (formData.username.length < 3) {
     errorMessage.value = 'Username must be at least 3 characters long.'
+    error(errorMessage.value)
     return
   }
 
   if (formData.password.length < 8) {
     errorMessage.value = 'Password must be at least 8 characters long.'
+    error(errorMessage.value)
     return
   }
 
   if (formData.password !== confirmPassword.value) {
     errorMessage.value = 'Passwords do not match.'
+    error(errorMessage.value)
     return
   }
 
   if (!acceptTerms.value) {
     errorMessage.value = 'You must accept the terms and conditions.'
+    error(errorMessage.value)
     return
   }
 
@@ -201,7 +207,7 @@ const handleSignup = async () => {
     await signup(formData)
     
     successMessage.value = 'Account created successfully! Redirecting to login...'
-    
+    success(successMessage.value)
     // Clear form
     formData.username = ''
     formData.email = ''
@@ -217,6 +223,7 @@ const handleSignup = async () => {
 
   } catch (err: any) {
     errorMessage.value = err.message || 'An error occurred during signup.'
+    error(errorMessage.value)
   } finally {
     loading.value = false
   }
