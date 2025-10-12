@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-const config = useRuntimeConfig()
+const { public: { apiBase } } = useRuntimeConfig()
 const email = ref('')
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -86,7 +86,7 @@ const handleForgotPassword = async () => {
   loading.value = true
 
   try {
-    await $fetch(`${config.public.apiBase}/api/auth/forgot-password`, {
+    await $fetch(`${apiBase}/api/auth/forgot-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
