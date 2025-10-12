@@ -50,6 +50,8 @@
   --color-input-placeholder: #A8A29E; /* Muted placeholder */
   --color-input-focus-border: #3B82F6; /* Teal focus border */
   --color-input-focus-ring: #3B82F6;
+
+  --color-pagination-bg: #dfdfdf;
 }
 
 /* Dark mode - Cozy evening theme */
@@ -97,6 +99,8 @@
   --color-input-placeholder: #9CA3AF; /* Muted placeholder */
   --color-input-focus-border: #9CA3AF; /* Teal focus border */
   --color-input-focus-ring: #3B82F6;
+
+  --color-pagination-bg: #16191e;
 }
 
 /* Base styles */
