@@ -25,7 +25,7 @@ use([CanvasRenderer, TreemapChart, TooltipComponent, TitleComponent])
 const { chartTheme } = useChartTheme()
 
 interface LocationData {
-  location: string
+  country: string
   count: number
 }
 
@@ -38,7 +38,7 @@ const props = defineProps<{
 const chartOption = computed(() => {
   // Transform location/count to name/value for ECharts
   const treemapData = props.data.map(item => ({
-    name: item.location,
+    name: item.country,
     value: item.count
   }))
 
@@ -71,6 +71,7 @@ const chartOption = computed(() => {
       label: {
         show: true,
         formatter: (params: any) => {
+          console.log('params in tree',params)
           const total = props.data.reduce((sum, item) => sum + item.count, 0)
           const percentage = (params.value / total * 100).toFixed(1)
           if (params.value > 5) {
