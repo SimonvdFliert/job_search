@@ -46,6 +46,14 @@ module.exports = {
           'DEFAULT': 'var(--color-footer-bg)',
           'text': 'var(--color-footer-text)',
         },
+        'input': {
+          'bg': 'var(--color-input-bg)',
+          'text': 'var(--color-input-text)',
+          'border': 'var(--color-input-border)',
+          'placeholder': 'var(--color-input-placeholder)',
+          'focus-border': 'var(--color-input-focus-border)',
+          'focus-ring': 'var(--color-input-focus-ring)',
+        },
         // Global colors (still useful for edge cases)
         'page': 'var(--color-page-bg)',
         'accent': 'var(--color-accent)',
