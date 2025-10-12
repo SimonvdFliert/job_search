@@ -57,6 +57,7 @@ module.exports = {
         // Global colors (still useful for edge cases)
         'page': 'var(--color-page-bg)',
         'accent': 'var(--color-accent)',
+        'pagination-bg': 'var(--color-pagination-bg)',
       }
     },
   },

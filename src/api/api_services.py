@@ -11,20 +11,53 @@ from sqlalchemy import text
 
 def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
     q = search_params.get("q", None)
-    top_k = search_params.get("top_k", 20)
+    page = search_params.get("page", 20)
+    page_size = search_params.get("page_size", 20)
     mode = search_params.get("mode", "semantic")
 
+    
     if not q:
-        return JSONResponse({"results": [], "took_ms": 0})
+        return JSONResponse({
+            "items": [],
+            "total": 0,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": 0
+        })
     vec = embedding_service.embed_texts([q])[0]
+
+    # total_related_jobs = search_service.get_all_jobs_from_query(q)
+    # print(f"Total related jobs found: {total_related_jobs}")
+
+    offset = (page - 1) * page_size
 
     match mode:
         case "semantic":
-            return search_service.search_semantic(vec, top_k=top_k)
+            total = search_service.get_total_jobs_with_embeddings()
+            items = search_service.search_semantic(
+                vec, 
+                limit=page_size,  # Changed from top_k
+                offset=offset      # Pass offset!
+            )
         case "hybrid":
-            return search_service.search_hybrid(vec, top_k=top_k, q_text=q)
+            total = search_service.get_total_jobs_with_embeddings()
+            items = search_service.search_hybrid(
+                vec, 
+                limit=page_size,
+                offset=offset,
+                q_text=q
+            )
         case _:
             raise ValueError(f"Unknown search mode: {mode}")
+    print(f"Mode: {mode}, Total: {total}, Items returned: {len(items)}")  # Debug
+    total_pages = (total + page_size - 1) // page_size
+    return {
+        "items": items,
+        "total": total ,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages
+    }
 
 def scrape_jobs() -> None:
     print("Starting scraping jobs...")

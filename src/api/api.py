@@ -3,13 +3,11 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Depends
 
 from starlette.middleware.cors import CORSMiddleware
-from typing import Any, Annotated
+from typing import Any
 import src.api.api_services as api_svc
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel
 from src.api.routers import auth_router
-from src.api.pydantic_models import UserResponse
-from src.api import auth_services 
-
+from src.api import auth_services
 
 app = FastAPI(title="Jobs API")
 
@@ -33,16 +31,51 @@ def get_job(job_id: str):
     if not row: raise HTTPException(404, "not found")
     return row
 
-@app.get("/search")
-def search(q: str = Query(""), top_k: int = Query(20, le=100), mode: str = Query("semantic")):
-    received_data: dict[str, Any] = {"q": q, "top_k": top_k, "mode": mode}
+
+class JobResult(BaseModel):
+    id: str
+    company: str
+    title: str
+    locations: list
+    url: str
+    posted_at: datetime | None
+    cosine_sim: float
+    # For hybrid mode:
+    text_match: float | None = None
+    hybrid_score: float | None = None
+    
+    class Config:
+        # This allows Pydantic to serialize datetime objects
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }
+
+class PaginatedResponse(BaseModel):
+    items: list[JobResult]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
+@app.get("/search", response_model=PaginatedResponse)
+def search(q: str = Query(""),
+           page: int = Query(1, ge=1),
+           page_size: int = Query(20, ge=1, le=100),
+           mode: str = Query("semantic")):
+    print(f"Received search request: q='{q}', page={page}, page_size={page_size}, mode={mode}")
+    
+    received_data: dict[str, Any] = {"q": q, 
+                                    "page": page,
+                                    "page_size": page_size,
+                                    "mode": mode}
+    
     rows = api_svc.do_job_search(received_data)
-    return {"results": rows}
+    return rows
 
 @app.get('/data/external_retrieval')
 def scraper_data(admin = Depends(auth_services.require_admin)):
     api_svc.scrape_jobs()
-    # print("scraping jobs endpoint hit, we should scrape jobs now")
 
 @app.get("/statistics/CTE")
 def statistics_cte(top_n_companies: int = 10):
