@@ -40,8 +40,9 @@ def search(q: str = Query(""), top_k: int = Query(20, le=100), mode: str = Query
     return {"results": rows}
 
 @app.get('/data/external_retrieval')
-def scraper_data():
+def scraper_data(admin = Depends(auth_services.require_admin)):
     api_svc.scrape_jobs()
+    # print("scraping jobs endpoint hit, we should scrape jobs now")
 
 @app.get("/statistics/CTE")
 def statistics_cte(top_n_companies: int = 10):
@@ -57,12 +58,12 @@ def statistics_cte(top_n_companies: int = 10):
     return api_svc.get_statistics(top_n_companies=top_n_companies)
 
 
-@app.get("/protected")
-async def protected_route(
-    current_user: Annotated[UserResponse, Depends(auth_services.get_current_active_user)]
-):
-    return {
-        "message": f"Hello {current_user.username}!",
-        "user": current_user
-    }
+# @app.get("/protected")
+# async def protected_route(
+#     current_user: Annotated[UserResponse, Depends(auth_services.get_current_active_user)]
+# ):
+#     return {
+#         "message": f"Hello {current_user.username}!",
+#         "user": current_user
+#     }
 

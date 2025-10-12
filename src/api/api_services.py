@@ -29,8 +29,8 @@ def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
 def scrape_jobs() -> None:
     print("Starting scraping jobs...")
     batch = []
-    if settings.scrape.ASHBY_ORGS: batch += scraper_service.fetch_ashby(settings.scrape.ASHBY_ORGS)
-    if settings.scrape.GREENHOUSE_BOARDS: batch += scraper_service.fetch_greenhouse(settings.scrape.GREENHOUSE_BOARDS)
+    if settings.ashby_orgs: batch += scraper_service.fetch_ashby(settings.ashby_orgs)
+    if settings.greenhouse_boards: batch += scraper_service.fetch_greenhouse(settings.greenhouse_boards)
     n = db_insertion_service.insert_jobs_into_db(batch)
     embedding_service.embed_data()
     print(f"ingested {n} rows")

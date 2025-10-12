@@ -157,7 +157,7 @@ def get_user_permissions(user: UserResponse, db: Session ) -> UserPermissions:
     
     return UserPermissions(
         can_scrape=has_admin_role or user.is_superuser,
-        can_view_analytics=True,  # All users can view
+        can_view_analytics=True,
         can_manage_users=user.is_superuser,
     )
 
@@ -166,9 +166,6 @@ async def get_current_user_info(
     current_user: Annotated[UserResponse, Depends(auth.get_current_active_user)],
     db: Session = Depends(database_service.get_db)
 ):
-    print('current user', current_user)
-    # current user username='super_admin' email='super@admin.nl' full_name='super admin' id=3 is_active=True is_superuser=True created_at=datetime.datetime(2025, 10, 10, 20, 44, 4, 399213, tzinfo=datetime.timezone.utc)
-
     """Get current authenticated user information"""
     return UserMeResponse(
         username=current_user.username,
@@ -178,18 +175,18 @@ async def get_current_user_info(
     )
 
 
-@router.get("/public/test")
-async def public_test():
-    return {"message": "This is public, anyone can access"}
+# @router.get("/public/test")
+# async def public_test():
+#     return {"message": "This is public, anyone can access"}
 
-from typing import Annotated
+# from typing import Annotated
 
-@router.get("/protected/test")
-async def protected_test(
-    current_user: Annotated[UserResponse, Depends(auth.require_admin)]
-):
-    return {
-        "message": "This is protected",
-        "user": current_user.email,
-        "user_id": current_user.id
-    }
+# @router.get("/protected/test")
+# async def protected_test(
+#     current_user: Annotated[UserResponse, Depends(auth.require_admin)]
+# ):
+#     return {
+#         "message": "This is protected",
+#         "user": current_user.email,
+#         "user_id": current_user.id
+#     }

@@ -196,7 +196,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const { user, fetchUser, resetPassword, deleteUser, logout } = useAuth()
+const { user, fetchUser, resetPassword, deleteUser, logout, token } = useAuth()
+const { public: { apiBase } } = useRuntimeConfig()
 
 onMounted(async () => {
   if (!user.value) {
@@ -276,14 +277,19 @@ const scrapeSuccess = ref(false)
 const handleScrapeData = async () => {
   isScraping.value = true
   scrapeMessage.value = ''
-  
+
   try {
-    // Add your scraping API call here
-    await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
-    
-    scrapeMessage.value = 'Data scraping completed successfully!'
-    scrapeSuccess.value = true
-  } catch (error) {
+      // Use $fetch to avoid any caching issues
+      const data = await $fetch(`${apiBase}/data/external_retrieval`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
+      })
+      scrapeMessage.value = 'Data scraping completed successfully!'
+      scrapeSuccess.value = true
+    }
+  catch (error) {
     scrapeMessage.value = 'Failed to scrape data. Please try again.'
     scrapeSuccess.value = false
   } finally {

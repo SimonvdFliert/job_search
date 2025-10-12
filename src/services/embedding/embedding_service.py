@@ -5,6 +5,7 @@ from src.settings import settings
 from src.database import database_service
 from psycopg2.extras import execute_values
 from src.services.embedding.embedding_sql import _SQL_SELECT_MISSING_EMBEDDINGS, _SQL_UPSERT_EMBEDDINGS
+from sqlalchemy import text
 
 _HTML_TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
@@ -31,11 +32,11 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 
 
 def fetch_missing_embeddings() -> list[tuple[str, str]]:
-    with database_service.get_db_context() as cur:
+    with database_service.get_db_context() as db:
         # The new SQL query expects one parameter for the LIMIT clause
-        cur.execute(_SQL_SELECT_MISSING_EMBEDDINGS)
-        rows = cur.fetchall()
-    print('fetched missing embeddings:', len(rows))
+        result = db.execute(text(_SQL_SELECT_MISSING_EMBEDDINGS))
+        rows = result.mappings().all()  # ← This is the key change
+        print('fetched missing embeddings:', len(rows))
     # The return statement must match the columns from the new SQL query: 'id' and 'text_to_embed'
     return [(r["id"], r['text_to_embed']) for r in rows]
 
@@ -45,17 +46,22 @@ def insert_embeddings(pairs: list[tuple[str, list[float]]]) -> int:
         return 0
 
     data_to_insert = [
-            (
-                job_id,
-                settings.model_name,
-                embedding # This is the key change
-            )
+            {
+                'job_id': job_id,
+                'model_name': settings.model_name,
+                'embedding': embedding # This is the key change
+            }
             for job_id, embedding in pairs
         ]
 
-    with database_service.get_db_context() as cur:
-        execute_values(cur, _SQL_UPSERT_EMBEDDINGS, data_to_insert)
-        return cur.rowcount
+    with database_service.get_db_context() as db:
+        try:
+            result = db.execute(text(_SQL_UPSERT_EMBEDDINGS), data_to_insert)
+            db.commit()
+            return result.rowcount
+        except Exception as e:
+            db.rollback()
+            raise e
     
 def embed_data():
     total = 0
