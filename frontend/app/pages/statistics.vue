@@ -2,7 +2,7 @@
   <div class="min-h-screen md:grid md:grid-cols-12">
       <div class=" min-h-screen font-sans md:col-start-2 md:col-span-10">
 
-        <div class="grid grid-cols-5 mb-5 mt-4 rounded"> 
+        <div class="grid grid-cols-4 mb-5 mt-4 rounded"> 
           <Cards 
           label="Active Job Listings"
           :value="stats_summary?.total_active_jobs || 0"
@@ -64,11 +64,8 @@ import { ref, computed } from 'vue'
 const stats = useStatsStore()
 await stats.fetchStatistics() // runs on server for SSR, hydrates to client
 const { jobsPerDay, jobsPerLocation, topCompanies, stats_summary, companyOfferType, error } = storeToRefs(stats)
-console.log('jobsPerLocation in statistics.vue:', jobsPerLocation.value);
 
 const colorMode = useColorMode()
-
-console.log(colorMode.preference)
 
 </script>
 

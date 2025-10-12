@@ -13,7 +13,13 @@
             <input 
               type="text" 
               v-model="userData.full_name"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              class="bg-input-bg 
+                      text-input-text 
+                      border border-input-border 
+                      placeholder:text-input-placeholder
+                      focus:border-input-focus-border 
+                      focus:ring-input-focus-ring
+                      rounded-lg px-4 py-2.5 w-full"
               readonly
             />
           </div>
@@ -23,7 +29,13 @@
             <input 
               type="email" 
               v-model="userData.email"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              class="bg-input-bg 
+                      text-input-text 
+                      border border-input-border 
+                      placeholder:text-input-placeholder
+                      focus:border-input-focus-border 
+                      focus:ring-input-focus-ring
+                      rounded-lg px-4 py-2.5 w-full"
               readonly
             />
           </div>
@@ -34,13 +46,13 @@
     <!-- Permissions Section -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
       <div class="p-6">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Permissions</h2>
+        <h2 class="text-xl font-semibold text-card-text mb-4">Permissions</h2>
         
         <div class="flex flex-wrap gap-2">
           <span 
             v-for="permission in userData.permissions" 
             :key="permission"
-            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300"
+            class="bg-button-primary text-card-text text-sm font-medium px-3 py-1 rounded-full "
           >
             {{ permission }}
           </span>
@@ -51,15 +63,15 @@
     <!-- Admin Scrape Data Section -->
     <div v-if="isAdmin" class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
       <div class="p-6">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Data Scraping</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <h2 class="text-xl font-semibold text-card-text mb-4">Data Scraping</h2>
+        <p class="text-sm text-card-text mb-4">
           As an admin, you can initiate data scraping operations.
         </p>
         
         <button 
           @click="handleScrapeData"
           :disabled="isScraping"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="text-card-text  font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary hover:bg-button-primary-hover"
         >
           <span v-if="!isScraping">Start Data Scrape</span>
           <span v-else>Scraping...</span>
@@ -74,8 +86,8 @@
     <!-- Reset Password Section -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
       <div class="p-6">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Reset Password</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <h2 class="text-xl font-semibold text-card-text mb-4">Reset Password</h2>
+        <p class="text-sm text-card-text mb-4">
           Change your password to keep your account secure.
         </p>
         
@@ -85,7 +97,13 @@
             <input 
               type="password" 
               v-model="passwordData.current"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              class="bg-input-bg 
+                      text-input-text 
+                      border border-input-border 
+                      placeholder:text-input-placeholder
+                      focus:border-input-focus-border 
+                      focus:ring-input-focus-ring
+                      rounded-lg px-4 py-2.5 w-full"
             />
           </div>
 
@@ -94,7 +112,13 @@
             <input 
               type="password" 
               v-model="passwordData.new"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              class="bg-input-bg 
+                      text-input-text 
+                      border border-input-border 
+                      placeholder:text-input-placeholder
+                      focus:border-input-focus-border 
+                      focus:ring-input-focus-ring
+                      rounded-lg px-4 py-2.5 w-full"
             />
           </div>
 
@@ -103,13 +127,19 @@
             <input 
               type="password" 
               v-model="passwordData.confirm"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              class="bg-input-bg 
+                      text-input-text 
+                      border border-input-border 
+                      placeholder:text-input-placeholder
+                      focus:border-input-focus-border 
+                      focus:ring-input-focus-ring
+                      rounded-lg px-4 py-2.5 w-full"
             />
           </div>
 
           <button 
             @click="handleResetPassword"
-            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            class="text-card-text  font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-button-primary hover:bg-button-primary-hover"
           >
             Update Password
           </button>
@@ -195,6 +225,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+
+definePageMeta({
+  middleware: 'auth'
+});
 
 const { user, fetchUser, resetPassword, deleteUser, logout, token } = useAuth()
 const { public: { apiBase } } = useRuntimeConfig()

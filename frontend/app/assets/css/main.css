@@ -43,6 +43,13 @@
   /* Special sections */
   --color-hero-bg: #F0FDF4;        /* Subtle green tint */
   --color-hero-text: #14532D;      /* Dark green */
+
+  --color-input-bg: #F9FAFB;      /* Dark input background */
+  --color-input-text: #111827;    /* Light input text */
+  --color-input-border: #D1D5DB;  /* Dark border */
+  --color-input-placeholder: #A8A29E; /* Muted placeholder */
+  --color-input-focus-border: #3B82F6; /* Teal focus border */
+  --color-input-focus-ring: #3B82F6;
 }
 
 /* Dark mode - Cozy evening theme */
@@ -74,7 +81,7 @@
   --color-border-strong: #57534E;
   
   /* Buttons */
-  --color-button-primary: #1E293B;
+  --color-button-primary: #384455;
   --color-button-primary-hover: #14B8A6;
   --color-button-secondary: #57534E;
   --color-button-secondary-hover: #78716C;
@@ -83,6 +90,13 @@
   /* Special sections */
   --color-hero-bg: #14532D;        /* Dark green */
   --color-hero-text: #D0FDE7;      /* Light green */
+
+  --color-input-bg: #374151;      /* Dark input background */
+  --color-input-text: #FFFFFF;    /* Light input text */
+  --color-input-border: #4B5563;  /* Dark border */
+  --color-input-placeholder: #9CA3AF; /* Muted placeholder */
+  --color-input-focus-border: #9CA3AF; /* Teal focus border */
+  --color-input-focus-ring: #3B82F6;
 }
 
 /* Base styles */
