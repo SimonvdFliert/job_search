@@ -16,7 +16,7 @@ e.job_id IS NULL
 
 _SQL_UPSERT_EMBEDDINGS = """
 INSERT INTO job_embeddings (job_id, model_name, embedding)
-VALUES %s
+VALUES (:job_id, :model_name, :embedding)
 ON CONFLICT (job_id) DO UPDATE SET
   model_name = EXCLUDED.model_name,
   embedding  = EXCLUDED.embedding,

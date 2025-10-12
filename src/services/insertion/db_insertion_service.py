@@ -6,6 +6,7 @@ from src.services.embedding.embedding_service import strip_html
 from datetime import datetime
 import hashlib
 from src.services.insertion.insertion_sql import _SQL_INSERT_INTO_DB
+from sqlalchemy import text
 
 def _dedupe_key(company: str,
                 title: str,
@@ -25,25 +26,30 @@ def insert_jobs_into_db(rows: list[dict[str, Any]]) -> int:
         desc_html = r.get("description_html") or ""
         desc_text = r.get("description_text") or strip_html(desc_html)
 
-        values.append((
-            jid,                         
-            r.get("source"),             
-            r.get("source_id"),          
-            company,                     
-            title,                       
-            Json(r.get("locations") or []),
-            r.get("remote"),             
-            r.get("posted_at"),
-            url,                         
-            desc_html,                   
-            desc_text,                   
-            r.get("tags") or [],
-            Json(r.get("compensation")) if r.get("compensation") is not None else None,
-            True, #14 is active
-            updated_at := datetime.now(),
-        ))
+        values.append({
+            'id': jid,
+            'source': r.get("source"),
+            'source_id': r.get("source_id"),
+            'company': company,
+            'title': title,
+            'locations': Json(r.get("locations") or []),
+            'remote': r.get("remote"),
+            'posted_at': r.get("posted_at"),
+            'url': url,
+            'description_html': desc_html,
+            'description_text': desc_text,
+            'tags': r.get("tags") or [],
+            'compensation': Json(r.get("compensation")) if r.get("compensation") is not None else None,
+            'is_active': True,
+            'updated_at': datetime.now(),
+        })
     if not values:
         return 0
-    with database_service.get_cursor() as cur:
-        execute_values(cur, _SQL_INSERT_INTO_DB, values)
-    return len(values)
+    with database_service.get_db_context() as db:
+        try:
+            # Bulk insert using executemany
+            db.execute(text(_SQL_INSERT_INTO_DB), values)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise e

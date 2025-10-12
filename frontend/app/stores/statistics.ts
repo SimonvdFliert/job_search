@@ -30,7 +30,6 @@ export const useStatsStore = defineStore('statistics', {
       try {
         const { public: { apiBase } } = useRuntimeConfig()
         const infos = await $fetch<ApiStats>(`${apiBase}/statistics/CTE`)
-        console.log('Fetched statistics:', infos)
         this.jobsPerDay = infos.jobs_per_day
         this.jobsPerLocation = infos.jobs_per_location
         this.topCompanies = infos.top_companies

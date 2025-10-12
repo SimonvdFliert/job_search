@@ -46,14 +46,14 @@ def fetch_ashby(orgs: Iterable[str]) -> list[dict[str, Any]]:
     for org in orgs:
         print(f'fetching org: {org}')
         request_headers = {
-            "User-Agent": settings.scrape.headers
+            "User-Agent": settings.headers
         }
 
         url = f"https://api.ashbyhq.com/posting-api/job-board/{org}"
         params = {"includeCompensation": "true"}
         try:
             print('requesting URL:', url, 'with params:', params)
-            resp = requests.get(url, params=params, headers=request_headers, timeout=settings.scrape.time_out)
+            resp = requests.get(url, params=params, headers=request_headers, timeout=settings.time_out)
             print('response status code:', resp.status_code)
             resp.raise_for_status()
             data = resp.json() or {}
@@ -98,7 +98,7 @@ def fetch_ashby(orgs: Iterable[str]) -> list[dict[str, Any]]:
                     "raw": p,
                 }
             )
-        time.sleep(settings.scrape.sleep_between_calls)
+        time.sleep(settings.sleep_between_calls)
     return out
 
 
@@ -112,10 +112,10 @@ def fetch_greenhouse(boards: Iterable[str]) -> list[dict[str, Any]]:
         url = f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
         params = {"content": "true"}
         request_headers = {
-            "User-Agent": settings.scrape.headers
+            "User-Agent": settings.headers
         }
         try:
-            resp = requests.get(url, params=params, headers=request_headers, timeout=settings.scrape.time_out)
+            resp = requests.get(url, params=params, headers=request_headers, timeout=settings.time_out)
             resp.raise_for_status()
             data = resp.json() or {}
         except Exception as e:
@@ -146,7 +146,7 @@ def fetch_greenhouse(boards: Iterable[str]) -> list[dict[str, Any]]:
                     "raw": j,
                 }
             )
-        time.sleep(settings.scrape.sleep_between_calls)
+        time.sleep(settings.sleep_between_calls)
     return out
 
 

@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
     '@nuxtjs/tailwindcss',
+    'nuxt-auth-utils',
   ],
   echarts: {
     charts: ['BarChart', 
