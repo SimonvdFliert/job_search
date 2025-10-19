@@ -16,11 +16,11 @@ Scope deployment
 + fix treemap
 + add a simple settings page
 + connect changes of user to backend (change names, change password)
++ Add alerts
 
 
 
 TODO:
-- Add alerts
 - Add email confirmation --> Start with Resend
 - add a password forgoten function in the backend
 - Add blacklisting tokens

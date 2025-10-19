@@ -989,6 +989,7 @@ dependencies = [
     { name = "python-jose" },
     { name = "python-multipart" },
     { name = "requests" },
+    { name = "resend" },
     { name = "scrapy" },
     { name = "sentence-transformers" },
     { name = "uvicorn", extra = ["standard"] },
@@ -1011,6 +1012,7 @@ requires-dist = [
     { name = "python-jose", specifier = ">=3.5.0" },
     { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "requests", specifier = ">=2.32.5" },
+    { name = "resend", specifier = ">=2.16.0" },
     { name = "scrapy", specifier = ">=2.13.3" },
     { name = "sentence-transformers", specifier = ">=5.1.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.35.0" },
@@ -1319,6 +1321,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/72/97/bf44e6c6bd8ddbb99943baf7ba8b1a8485bcd2fe0e55e5708d7fee4ff1ae/requests_file-2.1.0.tar.gz", hash = "sha256:0f549a3f3b0699415ac04d167e9cb39bccfb730cb832b4d20be3d9867356e658", size = 6891 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d7/25/dd878a121fcfdf38f52850f11c512e13ec87c2ea72385933818e5b6c15ce/requests_file-2.1.0-py2.py3-none-any.whl", hash = "sha256:cf270de5a4c5874e84599fc5778303d496c10ae5e870bfa378818f35d21bda5c", size = 4244 },
+]
+
+[[package]]
+name = "resend"
+version = "2.16.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ff/22/3e940eee2e2ccca0a04dcf1c694efd9f615bea9b1104d1fa5ff35f379f3c/resend-2.16.0.tar.gz", hash = "sha256:2f00d1300aa26309291860c345bd796800ab4cd7a2ce76004b5be1d5a5f0af86", size = 16946 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/06/c2c0b3aee1891e85e6ff35606739b8a8e5b94c0c25a95a5efa17437173ad/resend-2.16.0-py2.py3-none-any.whl", hash = "sha256:ae14dd6825a93c60483bd29d149b9ae7e0af8c3c686b694fb3158b51f7526447", size = 25571 },
 ]
 
 [[package]]
