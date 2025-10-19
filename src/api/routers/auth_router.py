@@ -18,7 +18,6 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(user: UserCreate, db: Session = Depends(database_service.get_db)):
     """Register a new user"""
-    # Check if username already exists
     db_user = crud.get_user_by_username(username=user.username, db=db)
     if db_user:
         raise HTTPException(
@@ -26,7 +25,6 @@ async def signup(user: UserCreate, db: Session = Depends(database_service.get_db
             detail="Username already registered"
         )
     
-    # Check if email already exists
     db_user = crud.get_user_by_email(email=user.email, db=db)
     if db_user:
         raise HTTPException(
@@ -34,7 +32,6 @@ async def signup(user: UserCreate, db: Session = Depends(database_service.get_db
             detail="Email already registered"
         )
     
-    # Create new user
     new_user = crud.create_user(user=user, db=db)
     return UserResponse.model_validate(new_user)
 
@@ -116,6 +113,43 @@ async def change_password(
 
     return {"message": "Password changed successfully"}
 
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+@router.post("/forgot_password")
+async def forgot_password(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(database_service.get_db)
+):
+    """Request a password reset email"""
+    result = user_services.create_password_reset_token(request.email, db)
+    return {"message": result["message"]}
+
+
+
+class PasswordResetRequest(BaseModel):
+    token: str
+    new_password: str
+
+@router.post("/reset_password")
+async def change_password(
+    request: PasswordResetRequest,
+    db: Session = Depends(database_service.get_db)
+):
+    result = user_services.reset_password_with_token(
+        token=request.token,
+        new_password=request.new_password,
+        db=db
+    )
+    
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["message"])
+    
+    return {"message": result["message"]}
+
+
 class DeleteAccountRequest(BaseModel):
     password: str
 
@@ -134,10 +168,6 @@ async def delete_account(
         )
 
     crud.delete_user(user_id=current_user.id, db=db)
-    
-    # Note: Consider invalidating the user's JWT token here
-    # by adding it to a blacklist or clearing their session
-    
     return {"message": "Account deleted successfully"}
 
 
@@ -175,18 +205,3 @@ async def get_current_user_info(
     )
 
 
-# @router.get("/public/test")
-# async def public_test():
-#     return {"message": "This is public, anyone can access"}
-
-# from typing import Annotated
-
-# @router.get("/protected/test")
-# async def protected_test(
-#     current_user: Annotated[UserResponse, Depends(auth.require_admin)]
-# ):
-#     return {
-#         "message": "This is protected",
-#         "user": current_user.email,
-#         "user_id": current_user.id
-#     }

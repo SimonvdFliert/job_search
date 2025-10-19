@@ -86,7 +86,7 @@ const handleForgotPassword = async () => {
   loading.value = true
 
   try {
-    await $fetch(`${apiBase}/api/auth/forgot-password`, {
+    await $fetch(`${apiBase}/auth/forgot_password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

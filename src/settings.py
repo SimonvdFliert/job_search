@@ -75,12 +75,17 @@ class Settings(BaseSettings):
     headers: str = Field(default="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36")
     time_out: int = Field(default=15)
 
-  
+    #email fields
+    resend_api_key: str
+    frontend_url: str
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False
     )
-
 
 settings = Settings()

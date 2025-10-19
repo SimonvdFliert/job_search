@@ -47,7 +47,7 @@
                   Remember me
                 </label>
               </div>
-              <NuxtLink to="/forgotPassword" class="text-sm text-card-text hover:underline">
+              <NuxtLink to="/forgot-password" class="text-sm text-card-text hover:underline">
                 Forgot password?
               </NuxtLink>
             </div>
