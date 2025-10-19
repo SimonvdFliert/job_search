@@ -17,20 +17,16 @@ Scope deployment
 + add a simple settings page
 + connect changes of user to backend (change names, change password)
 + Add alerts
-
++ Add email confirmation --> Start with Resend
++ add a password forgoten function in the backend
 
 
 TODO:
-- Add email confirmation --> Start with Resend
-- add a password forgoten function in the backend
-- Add blacklisting tokens
 - OAuth with Google
 - add pytests tests
-- perhaps take the latest stored data item and set the scraper to look from then to now
 - launch tool
 - Rate limiting
 -  Monitoring --- Sentry for error tracking | Structured logging (structlog) | Health check endpoints | Performance metrics (optional: Prometheus)
-- Background jobs -- Celery + Redis setup | Email sending in background | Scheduled job scraping | Job queue monitoring
 - Refresh tokens + session management --- Short-lived access tokens | Long-lived refresh tokens | Refresh endpoint | Session list (active sessions) | Revoke all sessions | Frontend auto-refresh logic
 
 
@@ -41,3 +37,6 @@ Out of Scope:
 - File Uploading
 - 2FA
 - Postal Email handling
+- Add blacklisting tokens
+- perhaps take the latest stored data item and set the scraper to look from then to now
+- Background jobs -- Celery + Redis setup | Email sending in background | Scheduled job scraping | Job queue monitoring
