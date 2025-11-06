@@ -8,12 +8,30 @@ import src.api.api_services as api_svc
 from pydantic import BaseModel
 from src.api.routers import auth_router
 from src.api import auth_services
+from starlette.middleware.sessions import SessionMiddleware
+from src.settings import settings
+
 
 app = FastAPI(title="Jobs API")
+print('secret key', settings.secret_key)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.secret_key,
+    session_cookie="session",
+    path="/",  # Add this
+    max_age=3600,
+    same_site="lax",
+    https_only=False,
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=[
+        "http://localhost:3000",      # Your Nuxt frontend
+        "http://127.0.0.1:3000",      # Alternative
+        "http://localhost:8000",      # Your FastAPI backend
+        "http://127.0.0.1:8000",      # Alternative
+        ],  # Allows all origins
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers

@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   
   compatibilityDate: '2025-07-15',
   runtimeConfig: {
-    public: { apiBase: process.env.API_BASE || 'http://localhost:8000' }
+    public: { apiBase: process.env.API_BASE || 'http://127.0.0.1:8000' }
   },
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],

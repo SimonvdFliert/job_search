@@ -1,18 +1,36 @@
 from datetime import timedelta
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
+from fastapi.responses import RedirectResponse, JSONResponse
 from src.database import database_service
-from src.api.pydantic_models import UserCreate, UserResponse, Token, UserPermissions, UserMeResponse
+from src.api.pydantic_models import UserCreate, UserCreateGoogle, UserResponse, Token, UserPermissions, UserMeResponse
 from src.api import user_services
 from src.settings import settings
 import src.api.user_services as crud
 import src.api.auth_services as auth
 from pydantic import BaseModel, EmailStr
+from authlib.integrations.starlette_client import OAuth
+import os
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+
+oauth = OAuth()
+oauth.register(
+    name="google",
+    client_id=settings.google_client_id,
+    client_secret=settings.google_client_secret,
+    authorize_url="https://accounts.google.com/o/oauth2/auth",
+    authorize_params=None,
+    access_token_url="https://accounts.google.com/o/oauth2/token",
+    access_token_params=None,
+    refresh_token_url=None,
+    authorize_state=settings.secret_key,
+    redirect_uri=settings.google_redirect_uri,
+    jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
+    client_kwargs={"scope": "openid profile email"},
+)
 
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -62,7 +80,7 @@ async def login(
     # Create access token
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
-        data={"sub": user.username}, 
+        data={"sub": user.id, "email": user.email}, 
         expires_delta=access_token_expires
     )
     
@@ -177,12 +195,12 @@ def get_user_permissions(user: UserResponse, db: Session ) -> UserPermissions:
 
     try:    
         user_roles = user_services.get_user_roles(user.id, db=db)
-    except:
-        has_admin_role = False
 
-    if user_roles.name == "admin":
-        has_admin_role = True
-    else:
+        if user_roles and user_roles.name == "admin":
+            has_admin_role = True
+        else:
+            has_admin_role = False
+    except:
         has_admin_role = False
     
     return UserPermissions(
@@ -197,6 +215,11 @@ async def get_current_user_info(
     db: Session = Depends(database_service.get_db)
 ):
     """Get current authenticated user information"""
+    
+    print('current user in /me', current_user)
+  
+  
+  
     return UserMeResponse(
         username=current_user.username,
         email=current_user.email,
@@ -205,3 +228,62 @@ async def get_current_user_info(
     )
 
 
+# Create a special route for oauth google access
+# Google OAuth endpoints
+@router.get("/google/login")
+async def google_login(request: Request):
+    print(f"🔍 Initial session: {dict(request.session)}")
+    print(f"🔍 Cookies in request: {request.cookies}")
+    
+    redirect_uri = settings.google_redirect_uri
+    response = await oauth.google.authorize_redirect(request, redirect_uri)
+    
+    # Check if session was created
+    print(f"🔍 Session after OAuth redirect setup: {dict(request.session)}")
+    
+    return response
+
+@router.get("/google/callback")
+async def google_callback(request: Request, db: Session = Depends(database_service.get_db)):
+    """Handle Google OAuth callback"""
+    try:
+        # Exchange authorization code for token
+        token = await oauth.google.authorize_access_token(request)
+        user_info = token.get("userinfo")
+        
+        # Create Pydantic model from OAuth data
+        google_user = UserCreateGoogle(
+            google_id=user_info.get("sub"),
+            email=user_info.get("email"),
+            email_verified=user_info.get("email_verified", False),
+        )
+        
+        # Get or create user in database
+        user, is_new = crud.get_or_create_google_user(db, google_user)
+        
+        # Create JWT token for your app
+        access_token = auth.create_access_token(
+            data={"sub": str(user.id), "email": user.email}
+        )
+        
+        # Redirect to frontend with token
+        frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+        redirect_path = "/auth/callback"
+        
+        return RedirectResponse(
+            f"{frontend_url}{redirect_path}?token={access_token}&new_user={str(is_new).lower()}"
+        )
+        
+    except ValueError as e:
+        # Handle business logic errors (e.g., email already exists)
+        frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+        return RedirectResponse(
+            f"{frontend_url}/login?error={str(e)}"
+        )
+    except Exception as e:
+        # Handle unexpected errors
+        print(f"OAuth error: {str(e)}")
+        frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+        return RedirectResponse(
+            f"{frontend_url}/login?error=authentication_failed"
+        )
