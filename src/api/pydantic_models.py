@@ -6,11 +6,12 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: str | None = None
+    id: int
+    email: EmailStr | None = None
 
 # User schemas
 class UserBase(BaseModel):
-    username: str
+    username: str | None = None
     email: EmailStr
     full_name: str | None = None
 
@@ -27,6 +28,21 @@ class UserCreate(UserBase):
         if len(v) > 128:
             raise ValueError('Password must be less than 128 characters')
         return v
+
+
+class UserCreateGoogle(BaseModel):
+    """Schema for Google OAuth user creation"""
+    google_id: str
+    email: EmailStr
+    email_verified: bool = False
+    
+    @field_validator('google_id')
+    @classmethod
+    def validate_google_id(cls, v: str) -> str:
+        if not v or len(v) < 10:
+            raise ValueError('Invalid Google ID')
+        return v
+
 
 class UserLogin(BaseModel):
     """Schema for user login"""
@@ -55,7 +71,7 @@ class UserPermissions(BaseModel):
 
 class UserMeResponse(BaseModel):
     """Minimal user data for frontend display"""
-    username: str
+    username: str | None
     email: EmailStr
-    full_name: str
+    full_name: str | None
     permissions: UserPermissions

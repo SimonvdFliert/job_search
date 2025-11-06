@@ -36,3 +36,9 @@ docker exec -it job_search-db-1 psql -U route_admin -d jobsdb
 
 # Running the tool
 uv run python -m src.main  api
+
+
+# common problems
+Zombie process still exists, fastapi seems to not react
+run `netstat -ano | findstr :8000`
+kill with `taskkill /F /PID xxx`

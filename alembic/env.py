@@ -8,10 +8,10 @@ import sys
 from pathlib import Path
 import os
 from src.database.models import Base, Job, JobEmbedding, User, Role
-from job_search.src.settings import settings
+from src.settings import settings
 
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -1,5 +1,5 @@
 
-from sqlalchemy import ForeignKey, String, Index, func, Text, TIMESTAMP, Table, Column
+from sqlalchemy import ForeignKey, String, Index, func, Text, TIMESTAMP, Table, Column, CheckConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from typing import Any
 from datetime import datetime
@@ -86,12 +86,25 @@ class User(Base):
     __tablename__ = "users"
     
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    
+    # Auth method tracking
+    auth_provider: Mapped[str] = mapped_column(
+        String(20), 
+        default="local",
+        nullable=False
+    )  # 'local' or 'google'
+    
+    # Optional fields (depends on auth_provider)
+    username: Mapped[str | None] = mapped_column(String(50), unique=True, index=True)
+    google_id: Mapped[str | None] = mapped_column(String(255), unique=True, index=True)
+    hashed_password: Mapped[str | None] = mapped_column(String(255))
+    
+    # Required fields (for both)
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True)
-    hashed_password: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str | None] = mapped_column(String(100))
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
+    
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         server_default=func.now()
@@ -106,6 +119,15 @@ class User(Base):
     roles: Mapped[list["Role"]] = relationship(
         secondary=user_roles,
         back_populates="users"
+    )
+    
+    # Add table-level constraint
+    __table_args__ = (
+        CheckConstraint(
+            "(auth_provider = 'local' AND hashed_password IS NOT NULL) OR "
+            "(auth_provider = 'google' AND google_id IS NOT NULL)",
+            name="auth_provider_fields_check"
+        ),
     )
     
     def __repr__(self) -> str:

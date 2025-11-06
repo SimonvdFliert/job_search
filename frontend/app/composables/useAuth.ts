@@ -49,6 +49,11 @@ export const useAuth = () => {
     }
   }
 
+  const setToken = (newtoken) => {
+    token.value = newtoken
+    // Optionally fetch user data immediately
+    fetchUser()
+  }
 
 
   // Login
@@ -218,5 +223,6 @@ export const useAuth = () => {
     canScrape,
     canViewAnalytics,
     clearAuthState,
+    setToken
   }
 }

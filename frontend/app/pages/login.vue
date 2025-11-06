@@ -51,6 +51,10 @@
                 Forgot password?
               </NuxtLink>
             </div>
+
+            <a :href="googleLoginUrl" class="google-login-btn">
+              <button type="button">Login with Google</button>
+            </a>
             
             <button 
               type="submit" 
@@ -76,6 +80,7 @@
 <script setup lang="ts">
 const { login, clearAuthState } = useAuth()
 const { success, error } = useToast()
+const config = useRuntimeConfig()
 
 const identifier = ref('')
 const password = ref('')
@@ -103,4 +108,6 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
+const googleLoginUrl = `${config.public.apiBase}/auth/google/login`
 </script>
