@@ -1,20 +1,15 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
-
-from jwt import ExpiredSignatureError
-from fastapi import Depends, HTTPException, status
+import os
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jose import jwt
 from sqlalchemy.orm import Session
-
 from src.settings import settings
-from src.database import database_service
-from src.auth.schemas import TokenData, UserResponse
-import src.auth.user_services as crud
-
-# OAuth2 scheme for token URL
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
+from src.auth.crud import get_user_by_username, get_user_by_email, update_password
+from src.auth.password_service import password_service
+from src.database.models import User
+import resend
+import re
+from typing import Literal
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Create a JWT access token"""
@@ -35,75 +30,94 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     )
     return encoded_jwt
 
+def authenticate_user(identifier: str, password: str,  db: Session ) -> User | None:
+    """Authenticate user with username and password"""
 
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(database_service.get_db)
-) -> UserResponse:
-    """Get current user from JWT token"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    login_type = detect_login_type(identifier)
+
+    if login_type == "username":
+        user = get_user_by_username(identifier, db)
+    else:
+        user = get_user_by_email(identifier, db)
+
+    if not user or not user.is_active:
+        return None
+    if not password_service.verify_password(password, user.hashed_password):
+        return None
+    return user
+
+
+def detect_login_type(identifier: str) -> Literal["email", "username"]:
+    """Detect if identifier is an email or username."""
+    # Simple email pattern check
+    print('identifier in the detect login type', identifier)
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return "email" if re.match(email_pattern, identifier) else "username"
+
+def create_password_reset_token(email: str, db: Session) -> dict:
+    user = db.query(User).filter(User.email == email).first()
     
+    if not user:
+        return {
+            "success": True, 
+            "message": "If an account exists, a reset email has been sent"
+        }
+    
+    # Create JWT token
+    payload = {
+        "user_id": user.id,
+        "exp": datetime.now() + timedelta(hours=1),
+        "type": "password_reset"
+    }
+    
+    token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+    reset_link = f"{settings.frontend_url}/reset-password?token={token}"
+    resend.api_key = settings.resend_api_key
     try:
-
-        payload = jwt.decode(
-            token=token, 
-            key=settings.secret_key, 
-            algorithms=[settings.algorithm]
-        )
-
-        print('payload in get current user', payload)
-
-        user_id_str: str = payload.get("sub")
-        if user_id_str is None:
-            print('user_id_str is None')
-            raise credentials_exception
-        try:
-            user_id = int(user_id_str)
-        except ValueError:
-            print('user_id_str is not a valid integer')
-            raise credentials_exception
+        params = {
+            "from": os.getenv("EMAIL_FROM", "onboarding@resend.dev"),
+            "to": [email],
+            "subject": "Reset Your Password",
+            "html": f"""
+                <h2>Password Reset Request</h2>
+                <p>Click the link below to reset your password:</p>
+                <p><a href="{reset_link}">Reset Password</a></p>
+                <p>This link will expire in 1 hour.</p>
+            """
+        }
         
-        token_data = TokenData(id=user_id, email=payload.get("email"))
-
-    except JWTError:
-        print('JWTError occurred')
-        raise credentials_exception
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-
-
-    user = crud.get_user_by_id(user_id=token_data.id, db=db)
-    if user is None:
-        print('User not found')
-        raise credentials_exception
+        result = resend.Emails.send(params)
+        print('✅ Email sent successfully! Result:', result)
+        return {"success": True, "message": "If an account exists, a reset email has been sent"}
     
-    print(user, 'user in get current user')
+    except Exception as e:
+        print('❌ ERROR SENDING EMAIL:')
+        print(f'Error type: {type(e).__name__}')
+        print(f'Error message: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "message": f"Failed to send reset email: {str(e)}"}
 
-    return UserResponse.model_validate(user)
+def reset_password_with_token(token: str, new_password: str, db: Session) -> dict:
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        
+        if payload.get("type") != "password_reset":
+            return {"success": False, "message": "Invalid token"}
+        
+        user_id = payload.get("user_id")
+        hased_password = password_service.hash_password(new_password)
+        user = update_password(user_id, hased_password, db)
+        if not user:
+            return {"success": False, "message": "User not found"}
+
+        return {"success": True, "message": "Password reset successfully"}
+        
+    except jwt.ExpiredSignatureError:
+        return {"success": False, "message": "Token has expired"}
+    except jwt.InvalidTokenError:
+        return {"success": False, "message": "Invalid token"}
 
 
-async def get_current_active_user(
-    current_user: Annotated[UserResponse, Depends(get_current_user)]
-) -> UserResponse:
-    """Get current active user (not disabled)"""
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    
-    print('current_user in get current active user', current_user)
-    return current_user
 
 
-def require_admin(
-    current_user: Annotated[UserResponse, Depends(get_current_active_user)]
-) -> UserResponse:
-    """Dependency that requires admin role"""
-    if not current_user.is_superuser:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required"
-        )
-    return current_user
