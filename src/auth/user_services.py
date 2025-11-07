@@ -1,13 +1,11 @@
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 from src.database.models import User, Role, user_roles
 from src.api.pydantic_models import UserCreate, UserCreateGoogle
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHash
 from datetime import datetime, timedelta
-from pydantic import BaseModel, EmailStr
 import os
-from jose import jwt, JWTError
+from jose import jwt
 import resend
 import re
 from typing import Literal

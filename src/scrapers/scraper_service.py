@@ -7,8 +7,7 @@ import html
 from typing import Any, Iterable
 from datetime import datetime
 import requests
-from src.settings import settings
-from src.settings import AI_RE
+from src.settings import settings, AI_RE
 
 def parse_dt(s: str | None) -> str | None:
     """Parse many ISO-ish timestamps to ISO 8601 (UTC if possible). Return None if unknown."""

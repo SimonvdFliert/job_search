@@ -1,11 +1,10 @@
 from __future__ import annotations
 from contextlib import contextmanager
 import psycopg2
-from psycopg2.pool import SimpleConnectionPool
-from psycopg2.extras import RealDictCursor
-from psycopg2 import sql as psql
+from pgvector.psycopg2 import register_vector
 from src.settings import settings
-from src.database.sql_loader import load_sql
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker
 
 
 def check_database_exists() -> None:
@@ -28,12 +27,6 @@ def check_database_exists() -> None:
         raise
 
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from contextlib import contextmanager
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker
-from pgvector.psycopg2 import register_vector
 
 # Create engine with connection pooling
 engine = create_engine(

@@ -1,7 +1,7 @@
 from src.database import database_service
 from src.settings import settings
-from src.services.search.search_sql import SQL_SEARCH_SEMANTIC, SQL_SEARCH_HYBRID
-from pgvector.sqlalchemy import Vector
+# from src.search.search_sql import SQL_SEARCH_SEMANTIC, SQL_SEARCH_HYBRID
+# from pgvector.sqlalchemy import Vector
 from sqlalchemy import cast, text
 from src.database.models import Job, JobEmbedding
 from sqlalchemy import func, and_, case

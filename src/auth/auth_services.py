@@ -4,18 +4,16 @@ from typing import Annotated
 from jwt import ExpiredSignatureError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt, exceptions  # Make sure to import exceptions
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from src.settings import settings
 from src.database import database_service
 from src.api.pydantic_models import TokenData, UserResponse
-import src.api.user_services as crud
+import src.auth.user_services as crud
 
 # OAuth2 scheme for token URL
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:

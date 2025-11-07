@@ -3,13 +3,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse
 from src.database import database_service
 from src.api.pydantic_models import UserCreate, UserCreateGoogle, UserResponse, Token, UserPermissions, UserMeResponse
-from src.api import user_services
 from src.settings import settings
-import src.api.user_services as crud
-import src.api.auth_services as auth
+import src.auth.user_services as crud
+import src.auth.auth_services as auth
 from pydantic import BaseModel, EmailStr
 from authlib.integrations.starlette_client import OAuth
 import os
@@ -142,7 +141,7 @@ async def forgot_password(
     db: Session = Depends(database_service.get_db)
 ):
     """Request a password reset email"""
-    result = user_services.create_password_reset_token(request.email, db)
+    result = crud.create_password_reset_token(request.email, db)
     return {"message": result["message"]}
 
 
@@ -156,7 +155,7 @@ async def change_password(
     request: PasswordResetRequest,
     db: Session = Depends(database_service.get_db)
 ):
-    result = user_services.reset_password_with_token(
+    result = crud.reset_password_with_token(
         token=request.token,
         new_password=request.new_password,
         db=db
@@ -194,7 +193,7 @@ def get_user_permissions(user: UserResponse, db: Session ) -> UserPermissions:
     """Calculate user permissions based on roles"""
 
     try:    
-        user_roles = user_services.get_user_roles(user.id, db=db)
+        user_roles = crud.get_user_roles(user.id, db=db)
 
         if user_roles and user_roles.name == "admin":
             has_admin_role = True

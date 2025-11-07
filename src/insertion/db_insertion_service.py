@@ -2,10 +2,10 @@ from __future__ import annotations
 from typing import Any
 from psycopg2.extras import Json, execute_values
 from src.database import database_service
-from src.services.embedding.embedding_service import strip_html
+from src.embedding.embedding_service import strip_html
 from datetime import datetime
 import hashlib
-from src.services.insertion.insertion_sql import _SQL_INSERT_INTO_DB
+from src.insertion.insertion_sql import _SQL_INSERT_INTO_DB
 from sqlalchemy import text
 
 def _dedupe_key(company: str,

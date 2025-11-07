@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer
 from src.settings import settings
 from src.database import database_service
 from psycopg2.extras import execute_values
-from src.services.embedding.embedding_sql import _SQL_SELECT_MISSING_EMBEDDINGS, _SQL_UPSERT_EMBEDDINGS
+from src.embedding.embedding_sql import _SQL_SELECT_MISSING_EMBEDDINGS, _SQL_UPSERT_EMBEDDINGS
 from sqlalchemy import text
 
 _HTML_TAG_RE = re.compile(r"<[^>]+>")

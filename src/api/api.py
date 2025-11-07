@@ -6,8 +6,8 @@ from starlette.middleware.cors import CORSMiddleware
 from typing import Any
 import src.api.api_services as api_svc
 from pydantic import BaseModel
-from src.api.routers import auth_router
-from src.api import auth_services
+from src.auth import auth_router
+from src.auth import auth_services
 from starlette.middleware.sessions import SessionMiddleware
 from src.settings import settings
 
