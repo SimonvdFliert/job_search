@@ -3,8 +3,7 @@ import re, html
 from sentence_transformers import SentenceTransformer
 from src.settings import settings
 from src.database import database_service
-from psycopg2.extras import execute_values
-from src.services.embedding.embedding_sql import _SQL_SELECT_MISSING_EMBEDDINGS, _SQL_UPSERT_EMBEDDINGS
+from src.embedding.embedding_sql import _SQL_SELECT_MISSING_EMBEDDINGS, _SQL_UPSERT_EMBEDDINGS
 from sqlalchemy import text
 
 _HTML_TAG_RE = re.compile(r"<[^>]+>")
@@ -33,11 +32,9 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 
 def fetch_missing_embeddings() -> list[tuple[str, str]]:
     with database_service.get_db_context() as db:
-        # The new SQL query expects one parameter for the LIMIT clause
         result = db.execute(text(_SQL_SELECT_MISSING_EMBEDDINGS))
-        rows = result.mappings().all()  # ← This is the key change
+        rows = result.mappings().all()
         print('fetched missing embeddings:', len(rows))
-    # The return statement must match the columns from the new SQL query: 'id' and 'text_to_embed'
     return [(r["id"], r['text_to_embed']) for r in rows]
 
 
@@ -49,7 +46,7 @@ def insert_embeddings(pairs: list[tuple[str, list[float]]]) -> int:
             {
                 'job_id': job_id,
                 'model_name': settings.model_name,
-                'embedding': embedding # This is the key change
+                'embedding': embedding
             }
             for job_id, embedding in pairs
         ]

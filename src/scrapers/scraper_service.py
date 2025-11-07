@@ -7,8 +7,9 @@ import html
 from typing import Any, Iterable
 from datetime import datetime
 import requests
-from src.settings import settings
-from src.settings import AI_RE
+from src.embedding import embedding_service
+from src.insertion import db_insertion_service
+from src.settings import settings, AI_RE
 
 def parse_dt(s: str | None) -> str | None:
     """Parse many ISO-ish timestamps to ISO 8601 (UTC if possible). Return None if unknown."""
@@ -149,34 +150,11 @@ def fetch_greenhouse(boards: Iterable[str]) -> list[dict[str, Any]]:
         time.sleep(settings.sleep_between_calls)
     return out
 
-
-# def normalize_and_dedupe(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    # seen = set()
-    # out: List[Dict[str, Any]] = []
-    # for it in items:
-    #     company = (it.get("company") or "").strip()
-    #     title = (it.get("title") or "").strip()
-    #     loc = (it.get("locations") or [None])[0]
-    #     url = it.get("url")
-    #     key = dedupe_key(company, title, loc, url)
-    #     if key in seen:
-    #         continue
-    #     seen.add(key)
-    #     # Keep only normalized fields; leave raw for auditing
-    #     out.append(
-    #         {
-    #             "id": key,
-    #             "source": it.get("source"),
-    #             "source_id": it.get("source_id"),
-    #             "company": company,
-    #             "title": title,
-    #             "locations": it.get("locations") or [],
-    #             "remote": it.get("remote"),
-    #             "posted_at": it.get("posted_at"),
-    #             "url": url,
-    #             "description": it.get("description") or "",
-    #             "tags": it.get("tags") or [],
-    #             "source_payload": it.get("raw"),
-    #         }
-    #     )
-    # return out
+def scrape_jobs() -> None:
+    print("Starting scraping jobs...")
+    batch = []
+    if settings.ashby_orgs: batch += fetch_ashby(settings.ashby_orgs)
+    if settings.greenhouse_boards: batch += fetch_greenhouse(settings.greenhouse_boards)
+    n = db_insertion_service.insert_jobs_into_db(batch)
+    embedding_service.embed_data()
+    print(f"ingested {n} rows")

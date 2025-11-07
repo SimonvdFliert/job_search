@@ -1,72 +1,7 @@
 from __future__ import annotations
-from fastapi.responses import JSONResponse
-from src.settings import settings
-from src.services.embedding import embedding_service
-from src.services.search import search_service
-from src.services.insertion import db_insertion_service
-from src.services.scrapers import scraper_service
 from src.database import database_service
 from collections import Counter
 from sqlalchemy import text
-
-def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
-    q = search_params.get("q", None)
-    page = search_params.get("page", 20)
-    page_size = search_params.get("page_size", 20)
-    mode = search_params.get("mode", "semantic")
-
-    
-    if not q:
-        return JSONResponse({
-            "items": [],
-            "total": 0,
-            "page": page,
-            "page_size": page_size,
-            "total_pages": 0
-        })
-    vec = embedding_service.embed_texts([q])[0]
-
-    # total_related_jobs = search_service.get_all_jobs_from_query(q)
-    # print(f"Total related jobs found: {total_related_jobs}")
-
-    offset = (page - 1) * page_size
-
-    match mode:
-        case "semantic":
-            total = search_service.get_total_jobs_with_embeddings()
-            items = search_service.search_semantic(
-                vec, 
-                limit=page_size,  # Changed from top_k
-                offset=offset      # Pass offset!
-            )
-        case "hybrid":
-            total = search_service.get_total_jobs_with_embeddings()
-            items = search_service.search_hybrid(
-                vec, 
-                limit=page_size,
-                offset=offset,
-                q_text=q
-            )
-        case _:
-            raise ValueError(f"Unknown search mode: {mode}")
-    print(f"Mode: {mode}, Total: {total}, Items returned: {len(items)}")  # Debug
-    total_pages = (total + page_size - 1) // page_size
-    return {
-        "items": items,
-        "total": total ,
-        "page": page,
-        "page_size": page_size,
-        "total_pages": total_pages
-    }
-
-def scrape_jobs() -> None:
-    print("Starting scraping jobs...")
-    batch = []
-    if settings.ashby_orgs: batch += scraper_service.fetch_ashby(settings.ashby_orgs)
-    if settings.greenhouse_boards: batch += scraper_service.fetch_greenhouse(settings.greenhouse_boards)
-    n = db_insertion_service.insert_jobs_into_db(batch)
-    embedding_service.embed_data()
-    print(f"ingested {n} rows")
 
 def get_job_by_id(job_id: str):
     with database_service.get_db_context() as cur:
@@ -74,7 +9,6 @@ def get_job_by_id(job_id: str):
         row = cur.fetchone()
 
     return row
-
 
 def get_statistics(top_n_companies: int = 10, days_back: int = 30):
     """Get comprehensive job statistics using CTEs."""

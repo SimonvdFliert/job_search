@@ -1,10 +1,54 @@
 from src.database import database_service
-from src.settings import settings
-from src.services.search.search_sql import SQL_SEARCH_SEMANTIC, SQL_SEARCH_HYBRID
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import cast, text
+from sqlalchemy import text
 from src.database.models import Job, JobEmbedding
-from sqlalchemy import func, and_, case
+from sqlalchemy import and_, case
+from fastapi.responses import JSONResponse
+from src.embedding import embedding_service
+
+def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
+    q = search_params.get("q", None)
+    page = search_params.get("page", 20)
+    page_size = search_params.get("page_size", 20)
+    mode = search_params.get("mode", "semantic")
+
+    if not q:
+        return JSONResponse({
+            "items": [],
+            "total": 0,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": 0
+        })
+    vec = embedding_service.embed_texts([q])[0]
+
+    offset = (page - 1) * page_size
+
+    match mode:
+        case "semantic":
+            total = get_total_jobs_with_embeddings()
+            items = search_semantic(
+                vec, 
+                limit=page_size,
+                offset=offset
+            )
+        case "hybrid":
+            total = get_total_jobs_with_embeddings()
+            items = search_hybrid(
+                vec, 
+                limit=page_size,
+                offset=offset,
+                q_text=q
+            )
+        case _:
+            raise ValueError(f"Unknown search mode: {mode}")
+    total_pages = (total + page_size - 1) // page_size
+    return {
+        "items": items,
+        "total": total ,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages
+    }
 
 
 def get_total_jobs_with_embeddings() -> int:
@@ -18,22 +62,17 @@ def get_total_jobs_with_embeddings() -> int:
         """)
         total_result = db.execute(total_query)
         total = total_result.scalar()
-    print(f"Total jobs with embeddings: {total}")
     return total
 
 
 def search_semantic(
     q_embed: list[float],
-    limit: int = 20,      # Renamed from page_size
-    offset: int = 0,      # Added offset parameter
+    limit: int = 20,
+    offset: int = 0,
     company: str | None = None,
     q_loc: str | None = None
 ):
     
-    print(f"Searching semantic with limit={limit}, offset={offset}")
-    print(f"Query embedding sample: {q_embed[:5]}... (length: {len(q_embed)})")
-
-
     with database_service.get_db_context() as db:
         db.execute(text("SET LOCAL ivfflat.probes = 10"))
         
@@ -71,7 +110,7 @@ def search_semantic(
 def search_hybrid(
     q_embed: list[float],
     limit: int = 20,
-    offset: int = 0,      # Added offset
+    offset: int = 0,
     q_text: str = "",
     company: str | None = None,
     q_loc: str | None = None
@@ -81,14 +120,12 @@ def search_hybrid(
         
         cosine_sim = (1 - JobEmbedding.embedding.cosine_distance(q_embed)).label("cosine_sim")
         
-        # Text search relevance (you can adjust weights)
         text_match = case(
             (Job.title.ilike(f"%{q_text}%"), 1.0),
             (Job.company.ilike(f"%{q_text}%"), 0.8),
             else_=0.0
         ).label("text_match")
         
-        # Combined score
         hybrid_score = (cosine_sim * 0.7 + text_match * 0.3).label("hybrid_score")
         
         query = db.query(
@@ -107,7 +144,7 @@ def search_hybrid(
         results = query.order_by(
             hybrid_score.desc(),
             Job.posted_at.desc().nullslast()
-        ).limit(limit).offset(offset).all()  # ← Added .offset(offset)
+        ).limit(limit).offset(offset).all()
 
         return [
             {

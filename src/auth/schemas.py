@@ -9,7 +9,6 @@ class TokenData(BaseModel):
     id: int
     email: EmailStr | None = None
 
-# User schemas
 class UserBase(BaseModel):
     username: str | None = None
     email: EmailStr
@@ -43,13 +42,6 @@ class UserCreateGoogle(BaseModel):
             raise ValueError('Invalid Google ID')
         return v
 
-
-class UserLogin(BaseModel):
-    """Schema for user login"""
-    username: str
-    password: str
-
-
 class UserResponse(UserBase):
     """Schema for user responses (what API returns)"""
     id: int
@@ -58,11 +50,6 @@ class UserResponse(UserBase):
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
-
-
-class UserWithRoles(UserResponse):
-    """User response with role names"""
-    roles: list[str] = []
 
 class UserPermissions(BaseModel):
     can_scrape: bool
@@ -75,3 +62,21 @@ class UserMeResponse(BaseModel):
     email: EmailStr
     full_name: str | None
     permissions: UserPermissions
+
+
+class PasswordChangeRequest(BaseModel):
+    current: str
+    new: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetRequest(BaseModel):
+    token: str
+    new_password: str
+
+class DeleteAccountRequest(BaseModel):
+    password: str
+
+
+    
