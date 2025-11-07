@@ -34,10 +34,8 @@ def get_user_roles(user_id: int, db: Session):
 
 def create_user(user: UserCreate, db: Session) -> User:
     """Create a new user"""
-    # Hash the password
     hashed_password = hash_password(user.password)
 
-    # Create user instance
     db_user = User(
         auth_provider="local",
         username=user.username,
@@ -48,7 +46,6 @@ def create_user(user: UserCreate, db: Session) -> User:
         is_superuser=False
     )
     
-    # Assign default 'user' role
     user_role = db.query(Role).filter(Role.name == "user").first()
     if user_role:
         db_user.roles.append(user_role)
@@ -73,9 +70,9 @@ def create_google_user(db: Session, user_in: UserCreateGoogle) -> User:
         auth_provider="google",
         google_id=user_in.google_id,
         email=user_in.email,
-        username=None,  # OAuth users don't have usernames
-        hashed_password=None,  # OAuth users don't have passwords
-        full_name=None,  # Not collecting for now
+        username=None,
+        hashed_password=None,
+        full_name=None,
     )
     
     try:
@@ -94,8 +91,6 @@ def create_google_user(db: Session, user_in: UserCreateGoogle) -> User:
 
 def update_google_user(db: Session, user: User, user_in: UserCreateGoogle) -> User:
     """Update existing Google user (e.g., if email changed)"""
-    
-    # Update fields that might have changed
     user.email = user_in.email
     user.updated_at = datetime.now()
     
@@ -119,25 +114,18 @@ def get_or_create_google_user(
     Returns: (user, created) where created is True if new user was created
     """
     
-    # Try to find by Google ID first
     existing_user = get_user_by_google_id( user_in.google_id, db)
-    print('existing user found by google id', existing_user)
     if existing_user:
-        # Update and return existing user
         updated_user = update_google_user(db, existing_user, user_in)
         return updated_user, False
-    print('Not existing user', existing_user)
 
-    # Check if email exists with different auth provider
     email_user = get_user_by_email(user_in.email, db)
     if email_user and email_user.auth_provider == "local":
         raise ValueError(
             "This email is already registered with password login. "
             "Please log in with your password."
         )
-    print('Not email_user', email_user)
 
-    # Create new user
     new_user = create_google_user(db, user_in)
     return new_user, True
 
@@ -145,11 +133,11 @@ def update_password(user_id: int, new_hashed_password: str, db: Session):
     user = db.query(User).filter(User.id == user_id).first()
     
     if not user:
-        return None  # or raise an exception
+        return None
     
     user.hashed_password = new_hashed_password
     db.commit()
-    db.refresh(user)  # Refresh to get updated data
+    db.refresh(user)
     
     return user
 
@@ -157,9 +145,9 @@ def delete_user(user_id: int, db: Session):
     user = db.query(User).filter(User.id == user_id).first()
     
     if not user:
-        return None  # or raise an exception
+        return None
     
-    user.is_active = False  # Add this field to your User model
+    user.is_active = False
     user.deleted_at = datetime.now()
     db.commit()
     

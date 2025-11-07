@@ -9,7 +9,6 @@ class JobResult(BaseModel):
     url: str
     posted_at: datetime | None
     cosine_sim: float
-    # For hybrid mode:
     text_match: float | None = None
     hybrid_score: float | None = None
     

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from src.auth import deps as auth_deps
 from src.scrapers import scraper_service
 
-
 router = APIRouter(prefix="/data", tags=["scraper"])
 
 @router.get('/external_retrieval')

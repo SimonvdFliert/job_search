@@ -61,7 +61,6 @@ async def login(
 ):
     """Login and get access token"""
     
-    # Authenticate user
     user = auth_service.authenticate_user(form_data.username, form_data.password, db=db)
     if not user:
         raise HTTPException(
@@ -70,14 +69,12 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Check if user is active
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive"
         )
     
-    # Create access token
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = auth_service.create_access_token(
         data={"sub": user.id, "email": user.email}, 
@@ -208,41 +205,29 @@ async def get_current_user_info(
 
 @router.get("/google/login")
 async def google_login(request: Request):
-    print(f"🔍 Initial session: {dict(request.session)}")
-    print(f"🔍 Cookies in request: {request.cookies}")
-    
     redirect_uri = settings.google_redirect_uri
-    response = await oauth.google.authorize_redirect(request, redirect_uri)
-    
-    # Check if session was created
-    print(f"🔍 Session after OAuth redirect setup: {dict(request.session)}")
-    
+    response = await oauth.google.authorize_redirect(request, redirect_uri)   
     return response
 
 @router.get("/google/callback")
 async def google_callback(request: Request, db: Session = Depends(database_service.get_db)):
     """Handle Google OAuth callback"""
     try:
-        # Exchange authorization code for token
         token = await oauth.google.authorize_access_token(request)
         user_info = token.get("userinfo")
         
-        # Create Pydantic model from OAuth data
         google_user = UserCreateGoogle(
             google_id=user_info.get("sub"),
             email=user_info.get("email"),
             email_verified=user_info.get("email_verified", False),
         )
         
-        # Get or create user in database
         user, is_new = auth_crud.get_or_create_google_user(db, google_user)
         
-        # Create JWT token for your app
         access_token = auth_service.create_access_token(
             data={"sub": str(user.id), "email": user.email}
         )
         
-        # Redirect to frontend with token
         frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
         redirect_path = "/auth/callback"
         
@@ -251,13 +236,11 @@ async def google_callback(request: Request, db: Session = Depends(database_servi
         )
         
     except ValueError as e:
-        # Handle business logic errors (e.g., email already exists)
         frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
         return RedirectResponse(
             f"{frontend_url}/login?error={str(e)}"
         )
     except Exception as e:
-        # Handle unexpected errors
         print(f"OAuth error: {str(e)}")
         frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
         return RedirectResponse(

@@ -5,14 +5,12 @@ class PasswordService:
     """Secure password hashing using Argon2."""
     
     def __init__(self):
-        # Configure Argon2 parameters
-        # These are secure defaults, but you can adjust based on your needs
         self.ph = PasswordHasher(
-            time_cost=2,        # Number of iterations
-            memory_cost=65536,  # Memory usage in KiB (64 MB)
-            parallelism=4,      # Number of parallel threads
-            hash_len=32,        # Length of hash in bytes
-            salt_len=16         # Length of random salt in bytes
+            time_cost=2,
+            memory_cost=65536,
+            parallelism=4,
+            hash_len=32,
+            salt_len=16
         )
     
     def hash_password(self, password: str) -> str:
@@ -46,10 +44,8 @@ class PasswordService:
             self.ph.verify(hashed, password)
             return True
         except VerifyMismatchError:
-            # Password doesn't match
             return False
         except (VerificationError, InvalidHash) as e:
-            # Invalid hash format or other verification error
             print(f"Password verification error: {e}")
             return False
     
@@ -64,7 +60,6 @@ class PasswordService:
             return True
 
 
-# Create a singleton instance
 password_service = PasswordService()
 
 

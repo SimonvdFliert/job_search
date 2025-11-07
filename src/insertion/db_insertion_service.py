@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any
-from psycopg2.extras import Json, execute_values
+from psycopg2.extras import Json
 from src.database import database_service
 from src.embedding.embedding_service import strip_html
 from datetime import datetime

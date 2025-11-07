@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 import os
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from sqlalchemy.orm import Session
 from src.settings import settings
@@ -49,8 +48,6 @@ def authenticate_user(identifier: str, password: str,  db: Session ) -> User | N
 
 def detect_login_type(identifier: str) -> Literal["email", "username"]:
     """Detect if identifier is an email or username."""
-    # Simple email pattern check
-    print('identifier in the detect login type', identifier)
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return "email" if re.match(email_pattern, identifier) else "username"
 
@@ -63,7 +60,6 @@ def create_password_reset_token(email: str, db: Session) -> dict:
             "message": "If an account exists, a reset email has been sent"
         }
     
-    # Create JWT token
     payload = {
         "user_id": user.id,
         "exp": datetime.now() + timedelta(hours=1),

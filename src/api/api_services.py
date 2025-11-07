@@ -10,7 +10,6 @@ def get_job_by_id(job_id: str):
 
     return row
 
-
 def get_statistics(top_n_companies: int = 10, days_back: int = 30):
     """Get comprehensive job statistics using CTEs."""
     

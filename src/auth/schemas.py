@@ -42,13 +42,6 @@ class UserCreateGoogle(BaseModel):
             raise ValueError('Invalid Google ID')
         return v
 
-
-# class UserLogin(BaseModel):
-#     """Schema for user login"""
-#     username: str
-#     password: str
-
-
 class UserResponse(UserBase):
     """Schema for user responses (what API returns)"""
     id: int
@@ -57,11 +50,6 @@ class UserResponse(UserBase):
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
-
-
-# class UserWithRoles(UserResponse):
-#     """User response with role names"""
-#     roles: list[str] = []
 
 class UserPermissions(BaseModel):
     can_scrape: bool

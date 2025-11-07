@@ -26,12 +26,9 @@ def check_database_exists() -> None:
         print(f"✗ Unexpected error: {e}")
         raise
 
-
-
-# Create engine with connection pooling
 engine = create_engine(
     settings.database_url,
-    pool_pre_ping=True,  # Verify connections before using
+    pool_pre_ping=True,
     pool_size=settings.db_pool_size,
     max_overflow=10,
     echo=settings.db_echo
@@ -42,12 +39,8 @@ def register_vector_type(dbapi_conn, connection_record):
     """Register pgvector type on each new connection."""
     register_vector(dbapi_conn)
 
-# Session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-
-# FastAPI dependency
 def get_db():
     """
     Dependency for FastAPI endpoints.
@@ -59,8 +52,6 @@ def get_db():
     finally:
         db.close()
 
-
-# Context manager for scripts/services
 @contextmanager
 def get_db_context():
     """
