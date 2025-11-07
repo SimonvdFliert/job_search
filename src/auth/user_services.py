@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from src.database.models import User, Role, user_roles
-from src.api.pydantic_models import UserCreate, UserCreateGoogle
+# from src.api.pydantic_models import UserCreate, UserCreateGoogle
+from src.auth.schemas import UserCreate, UserCreateGoogle
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHash
 from datetime import datetime, timedelta
@@ -219,10 +220,6 @@ def get_or_create_google_user(
     new_user = create_google_user(db, user_in)
     return new_user, True
 
-
-
-
-
 def update_password(user_id: int, new_hashed_password: str, db: Session):
     user = db.query(User).filter(User.id == user_id).first()
     
@@ -247,8 +244,6 @@ def delete_user(user_id: int, db: Session):
     
     return True
 
-
-
 def authenticate_user(identifier: str, password: str,  db: Session ) -> User | None:
     """Authenticate user with username and password"""
 
@@ -264,8 +259,6 @@ def authenticate_user(identifier: str, password: str,  db: Session ) -> User | N
     if not password_service.verify_password(password, user.hashed_password):
         return None
     return user
-
-
 
 
 def detect_login_type(identifier: str) -> Literal["email", "username"]:

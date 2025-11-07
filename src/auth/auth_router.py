@@ -5,11 +5,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi.responses import RedirectResponse
 from src.database import database_service
-from src.api.pydantic_models import UserCreate, UserCreateGoogle, UserResponse, Token, UserPermissions, UserMeResponse
+from src.auth.schemas import Token, UserCreate, UserCreateGoogle, UserResponse, UserPermissions, UserMeResponse, PasswordChangeRequest, ForgotPasswordRequest, PasswordResetRequest, DeleteAccountRequest
 from src.settings import settings
 import src.auth.user_services as crud
 import src.auth.auth_services as auth
-from pydantic import BaseModel, EmailStr
 from authlib.integrations.starlette_client import OAuth
 import os
 
@@ -86,9 +85,6 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
-class PasswordChangeRequest(BaseModel):
-    current: str
-    new: str
 
 @router.post("/change_password")
 async def change_password(
@@ -131,10 +127,6 @@ async def change_password(
     return {"message": "Password changed successfully"}
 
 
-class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
-
-
 @router.post("/forgot_password")
 async def forgot_password(
     request: ForgotPasswordRequest,
@@ -143,12 +135,6 @@ async def forgot_password(
     """Request a password reset email"""
     result = crud.create_password_reset_token(request.email, db)
     return {"message": result["message"]}
-
-
-
-class PasswordResetRequest(BaseModel):
-    token: str
-    new_password: str
 
 @router.post("/reset_password")
 async def change_password(
@@ -165,10 +151,6 @@ async def change_password(
         raise HTTPException(status_code=400, detail=result["message"])
     
     return {"message": result["message"]}
-
-
-class DeleteAccountRequest(BaseModel):
-    password: str
 
 @router.post("/delete_account")
 async def delete_account(
@@ -214,11 +196,6 @@ async def get_current_user_info(
     db: Session = Depends(database_service.get_db)
 ):
     """Get current authenticated user information"""
-    
-    print('current user in /me', current_user)
-  
-  
-  
     return UserMeResponse(
         username=current_user.username,
         email=current_user.email,
@@ -227,8 +204,6 @@ async def get_current_user_info(
     )
 
 
-# Create a special route for oauth google access
-# Google OAuth endpoints
 @router.get("/google/login")
 async def google_login(request: Request):
     print(f"🔍 Initial session: {dict(request.session)}")

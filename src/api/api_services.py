@@ -26,9 +26,6 @@ def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
         })
     vec = embedding_service.embed_texts([q])[0]
 
-    # total_related_jobs = search_service.get_all_jobs_from_query(q)
-    # print(f"Total related jobs found: {total_related_jobs}")
-
     offset = (page - 1) * page_size
 
     match mode:
@@ -49,7 +46,6 @@ def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
             )
         case _:
             raise ValueError(f"Unknown search mode: {mode}")
-    print(f"Mode: {mode}, Total: {total}, Items returned: {len(items)}")  # Debug
     total_pages = (total + page_size - 1) // page_size
     return {
         "items": items,

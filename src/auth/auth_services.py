@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from src.settings import settings
 from src.database import database_service
-from src.api.pydantic_models import TokenData, UserResponse
+from src.auth.schemas import TokenData, UserResponse
 import src.auth.user_services as crud
 
 # OAuth2 scheme for token URL

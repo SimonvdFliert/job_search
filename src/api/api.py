@@ -1,24 +1,22 @@
 from __future__ import annotations
-from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Depends
 
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+
 from typing import Any
+from src.api.schemas import PaginatedResponse
 import src.api.api_services as api_svc
-from pydantic import BaseModel
 from src.auth import auth_router
 from src.auth import auth_services
-from starlette.middleware.sessions import SessionMiddleware
 from src.settings import settings
 
-
 app = FastAPI(title="Jobs API")
-print('secret key', settings.secret_key)
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.secret_key,
     session_cookie="session",
-    path="/",  # Add this
+    path="/",
     max_age=3600,
     same_site="lax",
     https_only=False,
@@ -27,14 +25,14 @@ app.add_middleware(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",      # Your Nuxt frontend
-        "http://127.0.0.1:3000",      # Alternative
-        "http://localhost:8000",      # Your FastAPI backend
-        "http://127.0.0.1:8000",      # Alternative
-        ],  # Allows all origins
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        ],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(auth_router.router)
@@ -48,33 +46,6 @@ def get_job(job_id: str):
     row = api_svc.get_job_by_id(job_id)
     if not row: raise HTTPException(404, "not found")
     return row
-
-
-class JobResult(BaseModel):
-    id: str
-    company: str
-    title: str
-    locations: list
-    url: str
-    posted_at: datetime | None
-    cosine_sim: float
-    # For hybrid mode:
-    text_match: float | None = None
-    hybrid_score: float | None = None
-    
-    class Config:
-        # This allows Pydantic to serialize datetime objects
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None
-        }
-
-class PaginatedResponse(BaseModel):
-    items: list[JobResult]
-    total: int
-    page: int
-    page_size: int
-    total_pages: int
-
 
 @app.get("/search", response_model=PaginatedResponse)
 def search(q: str = Query(""),
@@ -107,14 +78,3 @@ def statistics_cte(top_n_companies: int = 10):
     - job_types: [{type, count}]
     """
     return api_svc.get_statistics(top_n_companies=top_n_companies)
-
-
-# @app.get("/protected")
-# async def protected_route(
-#     current_user: Annotated[UserResponse, Depends(auth_services.get_current_active_user)]
-# ):
-#     return {
-#         "message": f"Hello {current_user.username}!",
-#         "user": current_user
-#     }
-
