@@ -13,6 +13,7 @@ AI_KEYWORDS = [
     r"data\s+scientist",
     r"(ML|AI)\s+engineer",
     r"(research|applied)\s+(scientist|engineer)",
+    r"forward\s+deployed\s+(engineer|scientist)",
 ]
 
 AI_RE = re.compile("|".join(AI_KEYWORDS), flags=re.I)

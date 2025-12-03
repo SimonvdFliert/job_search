@@ -17,13 +17,13 @@ class Job(Base):
     source_id: Mapped[str | None] = mapped_column(Text())
     company: Mapped[str] = mapped_column(CITEXT())
     title: Mapped[str] = mapped_column(Text())
-    locations: Mapped[dict] = mapped_column(JSONB, server_default='[]')
+    locations: Mapped[dict] = mapped_column(JSONB, server_default='{}')
     remote: Mapped[bool | None]
     posted_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), index=True)
     url: Mapped[str | None] = mapped_column(Text())
     description_html: Mapped[str | None] = mapped_column(Text())
     description_text: Mapped[str | None] = mapped_column(Text())
-    tags: Mapped[list | None] = mapped_column(ARRAY(Text()), server_default='[]')
+    tags: Mapped[list | None] = mapped_column(ARRAY(Text()), server_default='{}')
     compensation: Mapped[dict | None] = mapped_column(JSONB)
     is_active: Mapped[bool] = mapped_column(default=True)
     inserted_at: Mapped[datetime] = mapped_column(
