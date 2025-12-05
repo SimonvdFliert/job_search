@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import text
 from src.database.models import Job, JobEmbedding
-from src.search.search_service import get_total_jobs_with_embeddings, search_semantic
+from src.search.search_service import get_total_jobs_with_embeddings, search_semantic, do_job_search
 
 # Helper to create dummy vectors of the correct size (e.g., 1536)
 def create_vec(val: float, dim: int = 384):
@@ -62,12 +62,7 @@ def test_get_total_jobs_with_embeddings(session):
 def test_search_semantic(session):
     """
     Verifies cosine similarity sorting and field return.
-    """
-    # SETUP
-    # We create two jobs. 
-    # Job A is "identical" to our query (Sim = 1.0)
-    # Job B is "opposite" to our query (Sim = Low)
-    
+    """    
     job_a = Job(
         id="job-a-id",
         source="test-source",
@@ -91,19 +86,11 @@ def test_search_semantic(session):
     session.add_all([job_a, job_b])
     session.flush()
 
-    # Use a simple 3-dim vector for mental visualization 
-    # (Adjust 'dim' to match your DB schema, e.g. 1536)
     dim_size = 384 
-    
-    # Query Vector: [1, 1, ... 1]
     query_vec = [1.0] * dim_size
-    
-    # Target A: [1, 1, ... 1] (Perfect overlap)
     embed_a = JobEmbedding(job_id=job_a.id,
                             embedding=[1.0] * dim_size,
                             model_name="test-model")
-    
-    # Target B: [-1, -1, ... -1] (Opposite direction)
     embed_b = JobEmbedding(job_id=job_b.id,
                             embedding=[-1.0] * dim_size,
                             model_name="test-model")
@@ -111,11 +98,8 @@ def test_search_semantic(session):
     session.add_all([embed_a, embed_b])
     session.commit()
 
-    # ACTION
-    # We search using the Query Vector
     results = search_semantic(q_embed=query_vec, limit=10)
 
-    # ASSERT
     assert len(results) == 2
     
     # 1. Verify Sort Order (Higher cosine similarity first)
@@ -127,10 +111,33 @@ def test_search_semantic(session):
     assert first_result["company"] == "Tech Corp"
     assert first_result["title"] == "Perfect Match"
     
-    # 3. Verify Similarity Score Calculation
-    # Since vectors are identical, cosine sim should be close to 1.0
-    # Note: Using approx because of float point math
     assert first_result["cosine_sim"] == pytest.approx(1.0, abs=0.001) 
-    
-    # Since vectors are opposite, cosine sim should be -1.0
     assert results[1]["cosine_sim"] == pytest.approx(-1.0, abs=0.001)
+
+def test_do_job_search_no_query_returns_empty_response():
+    """
+    Test case 1: Ensures the function returns an empty JSONResponse when 'q' is missing.
+    """
+    search_params = {"mode": "semantic", "page": 1, "page_size": 10}
+    
+    # ACTION
+    response = do_job_search(search_params)
+    
+    # ASSERT
+    assert response.status_code == 200
+    data = response.body.decode()
+    assert '"total":0' in data
+    assert '"items":[]' in data
+
+
+def test_do_job_search_unknown_mode_raises_value_error():
+    """
+    Test case 3: Ensures that an invalid search mode raises the expected error.
+    """
+    search_params = {"q": "data scientist", "mode": "fuzzy"}
+    
+    # ACTION & ASSERT
+    with pytest.raises(ValueError) as excinfo:
+        do_job_search(search_params)
+    
+    assert "Unknown search mode: fuzzy" in str(excinfo.value)
