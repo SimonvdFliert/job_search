@@ -31,14 +31,6 @@ def do_job_search(search_params: dict) -> JSONResponse | dict | ValueError:
                 limit=page_size,
                 offset=offset
             )
-        case "hybrid":
-            total = get_total_jobs_with_embeddings()
-            items = search_hybrid(
-                vec, 
-                limit=page_size,
-                offset=offset,
-                q_text=q
-            )
         case _:
             raise ValueError(f"Unknown search mode: {mode}")
     total_pages = (total + page_size - 1) // page_size
@@ -105,58 +97,4 @@ def search_semantic(
                 "cosine_sim": float(sim)
             }
             for job, sim in results
-        ]
-
-def search_hybrid(
-    q_embed: list[float],
-    limit: int = 20,
-    offset: int = 0,
-    q_text: str = "",
-    company: str | None = None,
-    q_loc: str | None = None
-):
-    with database_service.get_db_context() as db:
-        db.execute(text("SET LOCAL ivfflat.probes = 10"))
-        
-        cosine_sim = (1 - JobEmbedding.embedding.cosine_distance(q_embed)).label("cosine_sim")
-        
-        text_match = case(
-            (Job.title.ilike(f"%{q_text}%"), 1.0),
-            (Job.company.ilike(f"%{q_text}%"), 0.8),
-            else_=0.0
-        ).label("text_match")
-        
-        hybrid_score = (cosine_sim * 0.7 + text_match * 0.3).label("hybrid_score")
-        
-        query = db.query(
-            Job,
-            cosine_sim,
-            text_match,
-            hybrid_score
-        ).join(
-            JobEmbedding, Job.id == JobEmbedding.job_id
-        ).filter(
-            and_(
-                Job.is_active == True,
-            )
-        )
-
-        results = query.order_by(
-            hybrid_score.desc(),
-            Job.posted_at.desc().nullslast()
-        ).limit(limit).offset(offset).all()
-
-        return [
-            {
-                "id": job.id,
-                "company": job.company,
-                "title": job.title,
-                "locations": job.locations,
-                "url": job.url,
-                "posted_at": job.posted_at,
-                "cosine_sim": float(cosine),
-                "text_match": float(text),
-                "hybrid_score": float(hybrid)
-            }
-            for job, cosine, text, hybrid in results
         ]
